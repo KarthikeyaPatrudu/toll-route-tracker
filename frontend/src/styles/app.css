@@ -1,0 +1,146 @@
+/* Global styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #ffffff;
+  color: #111827;
+}
+
+/* App layout */
+.app {
+  text-align: center;
+}
+
+/* Search / Navbar panel */
+.search-panel {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Field wrapper (for Vehicle & Date) */
+.field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Floating label */
+.field label {
+  position: absolute;
+  top: -8px;
+  left: 10px;
+  background: white;
+  padding: 0 4px;
+  font-size: 11px;
+  color: #2563eb;
+}
+
+/* Input box */
+.field input {
+  height: 40px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  min-width: 160px;
+}
+
+.field input:focus {
+  border-color: #2563eb;
+}
+
+/* Button */
+.search-panel button {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+.search-panel button:hover {
+  background: #1d4ed8;
+}
+
+/* Stats bar (distance/time) */
+.stats-bar {
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 10px;
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+/* Map */
+.map-container {
+  height: calc(100vh - 120px);
+  width: 100%;
+}
+
+/* Numbered toll markers */
+.marker-number {
+  background: #1d4ed8;
+  color: #ffffff;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+/* Remove default Leaflet white square */
+.leaflet-div-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.leaflet-control-zoom a {
+  border-radius: 4px;
+}
+
+/* Layout */
+.content {
+  display: flex;
+}
+
+/* Excluded panel */
+.excluded-panel {
+  width: 260px;
+  padding: 10px;
+  border-left: 1px solid #e5e7eb;
+  overflow-y: auto;
+}
+
+.excluded-item {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.excluded-item:hover {
+  background: #f1f5f9;
+}
+
+/* Time group */
+.time-group {
+  display: flex;
+  gap: 10px;
+}
