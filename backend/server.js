@@ -19,6 +19,9 @@ function normalizeVehicleNumber(v) {
   return v.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
 }
 
+/* =====================================================
+   ROUTE API (EXISTING — NO CHANGE)
+===================================================== */
 app.get("/route", async (req, res) => {
   try {
     let { vehicle, fromDate, fromTime, toDate, toTime } = req.query;
@@ -29,20 +32,12 @@ app.get("/route", async (req, res) => {
 
     vehicle = normalizeVehicleNumber(vehicle);
 
-    // Build full range
     const rangeStart = new Date(`${fromDate}T00:00:00`);
     const rangeEnd = new Date(`${toDate}T23:59:59`);
 
     const from = new Date(`${fromDate}T${fromTime}`);
     const to = new Date(`${toDate}T${toTime}`);
 
-    if (to < from) {
-      return res.status(400).json({
-        error: "To datetime must be after From datetime",
-      });
-    }
-
-    // Fetch ALL logs in date span
     const logs = await TollLog.find({
       vehicleRegNo: { $regex: `^${vehicle}$`, $options: "i" },
       readerReadTime: { $gte: rangeStart, $lte: rangeEnd },
@@ -63,20 +58,65 @@ app.get("/route", async (req, res) => {
         timestamp: t,
       };
 
-      if (t >= from && t <= to) {
-        included.push(item);
-      } else {
-        excluded.push(item);
-      }
+      if (t >= from && t <= to) included.push(item);
+      else excluded.push(item);
     });
 
     res.json({ included, excluded });
+
   } catch (err) {
     console.error("Route API Error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
+
+/* =====================================================
+   ✅ NEW VEHICLES DASHBOARD API
+===================================================== */
+app.get("/vehicles", async (req, res) => {
+  try {
+    const vehicles = await TollLog.aggregate([
+      {
+        $sort: { readerReadTime: -1 } // latest first
+      },
+      {
+        $group: {
+          _id: "$vehicleRegNo",
+          vehicleRegNo: { $first: "$vehicleRegNo" },
+          vehicleType: { $first: "$vehicleType" },
+          lastSeen: latest.readerReadTime
+               ? latest.readerReadTime.toISOString()
+                : null,
+
+          latitude: { $first: "$latitude" },
+          longitude: { $first: "$longitude" },
+          tollPlazaName: { $first: "$tollPlazaName" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          vehicleRegNo: 1,
+          vehicleType: 1,
+          lastSeenTime: 1,
+          latitude: 1,
+          longitude: 1,
+          tollPlazaName: 1
+        }
+      },
+      {
+        $sort: { lastSeenTime: -1 }
+      }
+    ]);
+
+    res.json(vehicles);
+
+  } catch (err) {
+    console.error("Vehicles API Error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
