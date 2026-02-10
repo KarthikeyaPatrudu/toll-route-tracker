@@ -85,10 +85,7 @@ app.get("/vehicles", async (req, res) => {
           _id: "$vehicleRegNo",
           vehicleRegNo: { $first: "$vehicleRegNo" },
           vehicleType: { $first: "$vehicleType" },
-          lastSeen: latest.readerReadTime
-               ? latest.readerReadTime.toISOString()
-                : null,
-
+          lastSeenTime: { $first: "$readerReadTime" },
           latitude: { $first: "$latitude" },
           longitude: { $first: "$longitude" },
           tollPlazaName: { $first: "$tollPlazaName" }
