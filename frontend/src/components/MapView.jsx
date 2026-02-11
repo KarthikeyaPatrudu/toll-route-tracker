@@ -1,131 +1,129 @@
-useEffect(() => {
-  if (!Array.isArray(points) || points.length === 0 || !mapRef.current)
-    return;
+import { useEffect, useRef } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
-  const map = mapRef.current;
+export default function MapView({ points, onRouteCalculated }) {
+  const mapRef = useRef(null);
+  const routeLayerRef = useRef(null);
+  const markersRef = useRef([]);
 
-  // CLEAR OLD ROUTES
-  if (routingRef.current) {
-    map.removeControl(routingRef.current);
-    routingRef.current = null;
-  }
+  /* ===============================
+     INIT MAP ONLY ONCE
+  =============================== */
+  useEffect(() => {
+    if (!mapRef.current) {
+      mapRef.current = L.map("map").setView([20.5937, 78.9629], 5);
 
-  routeLayersRef.current.forEach(l => map.removeLayer(l));
-  routeLayersRef.current = [];
+      L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          attribution: "© OpenStreetMap contributors",
+        }
+      ).addTo(mapRef.current);
+    }
+  }, []);
 
-  markersRef.current.forEach(m => map.removeLayer(m));
-  markersRef.current = [];
+  /* ===============================
+     DRAW ROUTE WHEN POINTS CHANGE
+  =============================== */
+  useEffect(() => {
+    if (!Array.isArray(points) || !mapRef.current) return;
 
-  // VALID + SORTED DATA
-  const sorted = points
-    .filter(
-      p =>
-        typeof p.lat === "number" &&
-        typeof p.lng === "number" &&
-        p.timestamp
-    )
-    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    const map = mapRef.current;
 
-  if (sorted.length === 0) return;
+    /* ---------- CLEAR OLD ROUTE ---------- */
 
-  const waypoints = sorted.map(p => L.latLng(p.lat, p.lng));
+    if (routeLayerRef.current) {
+      map.removeLayer(routeLayerRef.current);
+      routeLayerRef.current = null;
+    }
 
-  /* =====================================================
-     ✅ CASE 1 : ONLY ONE TOLL
-  ===================================================== */
-  if (sorted.length === 1) {
-    const p = sorted[0];
+    markersRef.current.forEach((m) => map.removeLayer(m));
+    markersRef.current = [];
 
-    const marker = L.marker([p.lat, p.lng])
-      .addTo(map)
-      .bindPopup(
-        `<b>${p.tollPlazaName}</b><br/>
-         ${new Date(p.timestamp).toLocaleString()}`
-      );
+    if (points.length === 0) {
+      onRouteCalculated?.(0, 0);
+      return;
+    }
 
-    markersRef.current.push(marker);
+    /* ---------- SORT POINTS BY TIME ---------- */
+    const sorted = [...points].sort(
+      (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+    );
 
-    map.setView([p.lat, p.lng], 13);
+    const latlngs = sorted.map((p) => [p.lat, p.lng]);
 
-    // reset stats
-    onRouteCalculated?.(0, 0);
+    /* ===================================================
+       ✅ CASE 1 : ONLY ONE TOLL
+    =================================================== */
+    if (latlngs.length === 1) {
+      const marker = L.marker(latlngs[0])
+        .addTo(map)
+        .bindPopup(sorted[0].tollPlazaName || "Toll");
 
-    return;
-  }
+      markersRef.current.push(marker);
 
-  /* =====================================================
-     ✅ CASE 2 : MULTIPLE TOLLS (YOUR EXISTING LOGIC)
-  ===================================================== */
+      map.setView(latlngs[0], 13);
 
-  // GROUP FOR POPUPS
-  const grouped = {};
-  sorted.forEach((p, i) => {
-    const key = `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`;
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push({ ...p, stop: i + 1 });
-  });
+      onRouteCalculated?.(0, 0);
+      return;
+    }
 
-  Object.values(grouped).forEach((group, index) => {
-    const popupHtml = `
-      <b>${group[0].tollPlazaName}</b><br/>
-      ${group
-        .map(
-          g => `
-            Stop: ${g.stop}<br/>
-            Time: ${new Date(g.timestamp).toLocaleTimeString()}<br/>
-            Date: ${new Date(g.timestamp).toLocaleDateString()}<hr/>
-          `
-        )
-        .join("")}
-    `;
+    /* ===================================================
+       ✅ CASE 2 : MULTIPLE TOLLS
+    =================================================== */
 
-    const icon = L.divIcon({
-      html: `<div class="marker-number">${index + 1}</div>`,
-      iconSize: [28, 28],
-      iconAnchor: [14, 14],
+    // Draw polyline route
+    const polyline = L.polyline(latlngs, {
+      color: "#2563eb",
+      weight: 5,
+    }).addTo(map);
+
+    routeLayerRef.current = polyline;
+
+    map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
+
+    /* ---------- ADD NUMBERED MARKERS ---------- */
+    sorted.forEach((p, index) => {
+      const icon = L.divIcon({
+        html: `<div class="marker-number">${index + 1}</div>`,
+        className: "",
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+      });
+
+      const marker = L.marker([p.lat, p.lng], { icon })
+        .addTo(map)
+        .bindPopup(`
+          <b>${p.tollPlazaName}</b><br/>
+          ${new Date(p.timestamp).toLocaleString()}
+        `);
+
+      markersRef.current.push(marker);
     });
 
-    const marker = L.marker(
-      [group[0].lat, group[0].lng],
-      { icon }
-    )
-      .addTo(map)
-      .bindPopup(popupHtml);
+    /* ---------- DISTANCE CALCULATION ---------- */
+    let totalDistance = 0;
 
-    markersRef.current.push(marker);
-  });
+    for (let i = 1; i < latlngs.length; i++) {
+      totalDistance += map.distance(
+        latlngs[i - 1],
+        latlngs[i]
+      );
+    }
 
-  map.fitBounds(L.latLngBounds(waypoints), { padding: [50, 50] });
+    const totalKm = totalDistance / 1000;
 
-  // ROUTING MACHINE (UNCHANGED)
-  routingRef.current = L.Routing.control({
-    waypoints,
-    addWaypoints: false,
-    draggableWaypoints: false,
-    show: false,
-    fitSelectedRoutes: false,
-    createMarker: () => null,
-    lineOptions: { styles: [{ opacity: 0 }] }
-  })
-    .on("routesfound", e => {
-      const route = e.routes[0];
+    /* ---------- AVG SPEED ---------- */
+    const start = new Date(sorted[0].timestamp);
+    const end = new Date(sorted[sorted.length - 1].timestamp);
 
-      const totalDistanceKm =
-        route.summary.totalDistance / 1000;
+    const hours = (end - start) / (1000 * 60 * 60);
+    const avgSpeed = hours > 0 ? totalKm / hours : 0;
 
-      const totalStart = new Date(sorted[0].timestamp);
-      const totalEnd = new Date(sorted[sorted.length - 1].timestamp);
+    onRouteCalculated?.(totalKm, avgSpeed);
 
-      const totalHours =
-        (totalEnd - totalStart) / (1000 * 60 * 60);
+  }, [points, onRouteCalculated]);
 
-      const totalAvgSpeed =
-        totalHours > 0 ? totalDistanceKm / totalHours : 0;
-
-      if (onRouteCalculated) {
-        onRouteCalculated(totalDistanceKm, totalAvgSpeed);
-      }
-    })
-    .addTo(map);
-
-}, [points, onRouteCalculated]);
+  return <div id="map" className="map-container" />;
+}
