@@ -33,7 +33,7 @@ export default function MapView({ points, onRouteCalculated }) {
 
     const map = mapRef.current;
 
-    // CLEAR OLD ROUTE
+    /* ---------- CLEAR OLD ---------- */
     if (routingRef.current) {
       map.removeControl(routingRef.current);
       routingRef.current = null;
@@ -45,7 +45,7 @@ export default function MapView({ points, onRouteCalculated }) {
     routeLayersRef.current.forEach(l => map.removeLayer(l));
     routeLayersRef.current = [];
 
-    // VALID + SORTED POINTS
+    /* ---------- VALID + SORTED ---------- */
     const sorted = points
       .filter(p => p.lat && p.lng && p.timestamp)
       .sort(
@@ -69,21 +69,51 @@ export default function MapView({ points, onRouteCalculated }) {
     }
 
     /* =========================
-       ADD NUMBERED MARKERS
+       GROUP SAME LOCATION TOLLS
     ========================= */
+    const grouped = {};
+
     sorted.forEach((p, i) => {
+      const key = `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`;
+
+      if (!grouped[key]) grouped[key] = [];
+
+      grouped[key].push({
+        ...p,
+        stop: i + 1
+      });
+    });
+
+    /* =========================
+       ADD GROUPED MARKERS
+    ========================= */
+    Object.values(grouped).forEach((group, index) => {
+      const popupHtml = `
+        <b>${group[0].tollPlazaName}</b><br/>
+        ${group
+          .map(
+            g => `
+            Stop: ${g.stop}<br/>
+            Time: ${new Date(g.timestamp).toLocaleTimeString()}<br/>
+            Date: ${new Date(g.timestamp).toLocaleDateString()}<hr/>
+          `
+          )
+          .join("")}
+      `;
+
       const icon = L.divIcon({
-        html: `<div class="marker-number">${i + 1}</div>`,
+        html: `<div class="marker-number">${index + 1}</div>`,
         iconSize: [28, 28],
-        iconAnchor: [14, 14]
+        iconAnchor: [14, 14],
+        className: ""
       });
 
-      const marker = L.marker([p.lat, p.lng], { icon })
+      const marker = L.marker(
+        [group[0].lat, group[0].lng],
+        { icon }
+      )
         .addTo(map)
-        .bindPopup(
-          `<b>${p.tollPlazaName}</b><br/>
-           ${new Date(p.timestamp).toLocaleString()}`
-        );
+        .bindPopup(popupHtml);
 
       markersRef.current.push(marker);
     });
@@ -97,13 +127,14 @@ export default function MapView({ points, onRouteCalculated }) {
       draggableWaypoints: false,
       show: false,
       createMarker: () => null,
-      lineOptions: { styles: [{ opacity: 0 }] } // hide default line
+      lineOptions: { styles: [{ opacity: 0 }] }
     })
       .on("routesfound", e => {
         const route = e.routes[0];
         const coords = route.coordinates;
 
         const totalKm = route.summary.totalDistance / 1000;
+
         const totalHours =
           (new Date(sorted[sorted.length - 1].timestamp) -
             new Date(sorted[0].timestamp)) /
@@ -112,9 +143,7 @@ export default function MapView({ points, onRouteCalculated }) {
         const totalAvg =
           totalHours > 0 ? totalKm / totalHours : 0;
 
-        /* =========================
-           SEGMENT COLORING
-        ========================= */
+        /* ---------- HELPERS ---------- */
         function findNearestIndex(coords, lat, lng) {
           let min = Infinity;
           let index = 0;
@@ -122,6 +151,7 @@ export default function MapView({ points, onRouteCalculated }) {
           coords.forEach((c, i) => {
             const d =
               (c.lat - lat) ** 2 + (c.lng - lng) ** 2;
+
             if (d < min) {
               min = d;
               index = i;
@@ -131,6 +161,9 @@ export default function MapView({ points, onRouteCalculated }) {
           return index;
         }
 
+        /* =========================
+           SEGMENT COLORING
+        ========================= */
         for (let i = 0; i < sorted.length - 1; i++) {
           const startIdx = findNearestIndex(
             coords,
@@ -153,7 +186,6 @@ export default function MapView({ points, onRouteCalculated }) {
 
           if (segment.length < 2) continue;
 
-          // segment distance
           let meters = 0;
           for (let j = 1; j < segment.length; j++) {
             meters += map.distance(
