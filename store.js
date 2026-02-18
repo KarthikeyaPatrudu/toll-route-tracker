@@ -19,55 +19,54 @@ export default function TrackerPage() {
     avgSpeed: 0
   });
 
-  /* ✅ DEFAULT FILTERS */
-  const defaultFilters = {
+  /* ==============================
+     DEFAULT FILTERS (ALWAYS VALID)
+  ============================== */
+  const [filters, setFilters] = useState({
     fromDate: "2026-01-01",
     fromTime: "00:00",
     toDate: "2026-01-01",
     toTime: "23:59"
-  };
+  });
 
-  const [filters, setFilters] = useState(defaultFilters);
-
-  /* ===================================
+  /* ==============================
      AUTO FETCH WHEN VEHICLE CHANGES
-  =================================== */
+  ============================== */
   useEffect(() => {
-
     if (!selectedVehicle) return;
 
-    // ALWAYS use valid filters
-    fetchRoute(defaultFilters);
+    fetchRoute(filters);
 
   }, [selectedVehicle]);
 
-
-  /* ===================================
+  /* ==============================
      FETCH ROUTE
-  =================================== */
-  const fetchRoute = async (newFilters) => {
+  ============================== */
+  const fetchRoute = async (newFilters = filters) => {
 
-    // ❗ Prevent undefined request
+    if (!selectedVehicle) return;
+
+    const vehicleNo =
+      typeof selectedVehicle === "string"
+        ? selectedVehicle
+        : selectedVehicle?.vehicleRegNo;
+
     if (
-      !selectedVehicle ||
-      !newFilters?.fromDate ||
-      !newFilters?.fromTime ||
-      !newFilters?.toDate ||
-      !newFilters?.toTime
+      !vehicleNo ||
+      !newFilters.fromDate ||
+      !newFilters.fromTime ||
+      !newFilters.toDate ||
+      !newFilters.toTime
     ) {
-      console.log("Filters missing, skipping API call");
+      console.warn("Invalid route params");
       return;
     }
 
     try {
-
       setFilters(newFilters);
 
       const data = await getRoute({
-        vehicle:
-          typeof selectedVehicle === "string"
-            ? selectedVehicle
-            : selectedVehicle?.vehicleRegNo,
+        vehicle: vehicleNo,
         ...newFilters
       });
 
@@ -81,7 +80,6 @@ export default function TrackerPage() {
 
   return (
     <div className="tracker-container">
-
       <h2>Toll Route Tracker</h2>
 
       <SearchPanel onSearch={fetchRoute} />
