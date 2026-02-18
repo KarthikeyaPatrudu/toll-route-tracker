@@ -19,53 +19,60 @@ export default function TrackerPage() {
     avgSpeed: 0
   });
 
-  // ✅ DEFAULT FILTERS (IMPORTANT)
-  const [filters, setFilters] = useState({
+  /* ✅ DEFAULT FILTERS */
+  const defaultFilters = {
     fromDate: "2026-01-01",
     fromTime: "00:00",
     toDate: "2026-01-01",
     toTime: "23:59"
-  });
+  };
+
+  const [filters, setFilters] = useState(defaultFilters);
 
   /* ===================================
      AUTO FETCH WHEN VEHICLE CHANGES
   =================================== */
   useEffect(() => {
+
     if (!selectedVehicle) return;
 
-    fetchRoute(filters);
+    // ALWAYS use valid filters
+    fetchRoute(defaultFilters);
+
   }, [selectedVehicle]);
 
+
   /* ===================================
-     FETCH ROUTE FUNCTION
+     FETCH ROUTE
   =================================== */
-  const fetchRoute = async (newFilters = filters) => {
+  const fetchRoute = async (newFilters) => {
 
-    if (!selectedVehicle) return;
-
-    const finalFilters = {
-      fromDate: newFilters.fromDate || filters.fromDate,
-      fromTime: newFilters.fromTime || filters.fromTime,
-      toDate: newFilters.toDate || filters.toDate,
-      toTime: newFilters.toTime || filters.toTime
-    };
+    // ❗ Prevent undefined request
+    if (
+      !selectedVehicle ||
+      !newFilters?.fromDate ||
+      !newFilters?.fromTime ||
+      !newFilters?.toDate ||
+      !newFilters?.toTime
+    ) {
+      console.log("Filters missing, skipping API call");
+      return;
+    }
 
     try {
-      setFilters(finalFilters);
+
+      setFilters(newFilters);
 
       const data = await getRoute({
         vehicle:
           typeof selectedVehicle === "string"
             ? selectedVehicle
             : selectedVehicle?.vehicleRegNo,
-        ...finalFilters
+        ...newFilters
       });
 
       setIncluded(data.included || []);
       setExcluded(data.excluded || []);
-
-      // reset stats until map recalculates
-      setStats({ distance: 0, avgSpeed: 0 });
 
     } catch (err) {
       console.error("Route fetch error:", err);
@@ -74,6 +81,7 @@ export default function TrackerPage() {
 
   return (
     <div className="tracker-container">
+
       <h2>Toll Route Tracker</h2>
 
       <SearchPanel onSearch={fetchRoute} />
