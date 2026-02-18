@@ -1,166 +1,217 @@
-import { useState, useEffect } from "react";
-import { TextField, Button, Box } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
-import { useSelector } from "react-redux";
-import dayjs from "dayjs";
+import { useEffect, useRef } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-routing-machine";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 
-export default function SearchPanel({ onSearch }) {
+export default function MapView({ points, onRouteCalculated }) {
+  const mapRef = useRef(null);
+  const routingRef = useRef(null);
+  const markersRef = useRef([]);
+  const routeLayersRef = useRef([]);
 
-  /* ===============================
-     GET SELECTED VEHICLE FROM REDUX
-  =============================== */
-  const selectedVehicle = useSelector(
-    (state) => state.tracker.selectedVehicle
-  );
-
-  /* ===============================
-     LOCAL STATE
-  =============================== */
-  const [vehicle, setVehicle] = useState("");
-  const [fromDate, setFromDate] = useState(null);
-  const [toDate, setToDate] = useState(null);
-  const [fromTime, setFromTime] = useState(null);
-  const [toTime, setToTime] = useState(null);
-
-  /* ===============================
-     AUTO LOAD WHEN VEHICLE CHANGES
-  =============================== */
+    //  INIT MAP ONLY ONCE
+  
   useEffect(() => {
-    if (!selectedVehicle) return;
+    if (!mapRef.current) {
+      mapRef.current = L.map("map").setView([20.5937, 78.9629], 5);
 
-    const today = dayjs();
+      L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        { attribution: "© OpenStreetMap contributors" }
+      ).addTo(mapRef.current);
+    }
+  }, []);
 
-    const startDay = today.startOf("day");
-    const endDay = today.endOf("day");
-
-    setVehicle(selectedVehicle);
-    setFromDate(startDay);
-    setToDate(endDay);
-    setFromTime(startDay);
-    setToTime(endDay);
-
-  }, [selectedVehicle]);
-
-  /* ===============================
-     AUTO SEARCH AFTER AUTO LOAD
-  =============================== */
+  
+    //  ROUTE DRAWING
   useEffect(() => {
-    if (!vehicle || !fromDate || !toDate || !fromTime || !toTime) return;
+    if (!mapRef.current || !Array.isArray(points) || points.length === 0)
+      return;
 
-    onSearch({
-      vehicle: vehicle.toUpperCase(),
-      fromDate: fromDate.format("YYYY-MM-DD"),
-      fromTime: fromTime.format("HH:mm"),
-      toDate: toDate.format("YYYY-MM-DD"),
-      toTime: toTime.format("HH:mm")
+    const map = mapRef.current;
+
+    // CLEAR OLD 
+    if (routingRef.current) {
+      map.removeControl(routingRef.current);
+      routingRef.current = null;
+    }
+
+    markersRef.current.forEach(m => map.removeLayer(m));
+    markersRef.current = [];
+
+    routeLayersRef.current.forEach(l => map.removeLayer(l));
+    routeLayersRef.current = [];
+
+    // VALID + SORTED 
+    const sorted = points
+      .filter(p => p.lat && p.lng && p.timestamp)
+      .sort(
+        (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+      );
+
+    if (sorted.length === 0) return;
+
+    const latlngs = sorted.map(p => [p.lat, p.lng]);
+
+
+      //  ONLY ONE TOLL
+    if (latlngs.length === 1) {
+      const marker = L.marker(latlngs[0]).addTo(map);
+      markersRef.current.push(marker);
+
+      map.flyTo(latlngs[0], 13);
+      onRouteCalculated?.(0, 0);
+      return;
+    }
+   
+      //  GROUP SAME LOCATION TOLLS
+    const grouped = {};
+
+    sorted.forEach((p, i) => {
+      const key = `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`;
+
+      if (!grouped[key]) grouped[key] = [];
+
+      grouped[key].push({
+        ...p,
+        stop: i + 1
+      });
     });
 
-  }, [vehicle]);
+      //ADD GROUPED MARKERS
+    Object.values(grouped).forEach((group, index) => {
+      const popupHtml = `
+        <b>${group[0].tollPlazaName}</b><br/>
+        ${group
+          .map(
+            g => `
+            Stop: ${g.stop}<br/>
+            Time: ${new Date(g.timestamp).toLocaleTimeString()}<br/>
+            Date: ${new Date(g.timestamp).toLocaleDateString()}<hr/>
+          `
+          )
+          .join("")}
+      `;
 
-  /* ===============================
-     DATE HANDLING
-  =============================== */
-  const handleFromDateChange = (newDate) => {
-    setFromDate(newDate);
+      const icon = L.divIcon({
+        html: `<div class="marker-number">${index + 1}</div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+        className: ""
+      });
 
-    if (!toDate || newDate.isAfter(toDate)) {
-      setToDate(newDate);
-    }
-  };
+      const marker = L.marker(
+        [group[0].lat, group[0].lng],
+        { icon }
+      )
+        .addTo(map)
+        .bindPopup(popupHtml);
 
-  /* ===============================
-     MANUAL SEARCH BUTTON
-  =============================== */
-  const handleSearch = () => {
-
-    if (!vehicle || !fromDate || !toDate || !fromTime || !toTime) {
-      alert("Please fill all fields");
-      return;
-    }
-
-    if (fromDate.isAfter(toDate)) {
-      alert("To Date cannot be before From Date");
-      return;
-    }
-
-    if (fromDate.isSame(toDate, "day") && toTime.isBefore(fromTime)) {
-      alert("To Time must be after From Time");
-      return;
-    }
-
-    onSearch({
-      vehicle: vehicle.toUpperCase(),
-      fromDate: fromDate.format("YYYY-MM-DD"),
-      fromTime: fromTime.format("HH:mm"),
-      toDate: toDate.format("YYYY-MM-DD"),
-      toTime: toTime.format("HH:mm")
+      markersRef.current.push(marker);
     });
-  };
 
-  const isSameDay =
-    fromDate && toDate && fromDate.isSame(toDate, "day");
+      //  REAL ROAD ROUTE
+    routingRef.current = L.Routing.control({
+      waypoints: latlngs.map(p => L.latLng(p[0], p[1])),
+      addWaypoints: false,
+      draggableWaypoints: false,
+      show: false,
+      createMarker: () => null,
+      lineOptions: { styles: [{ opacity: 0 }] }
+    })
+      .on("routesfound", e => {
+        const route = e.routes[0];
+        const coords = route.coordinates;
 
-  /* ===============================
-     UI
-  =============================== */
-  return (
-    <Box className="search-panel">
+        const totalKm = route.summary.totalDistance / 1000;
 
-      <TextField
-        label="Vehicle Number"
-        size="small"
-        value={vehicle}
-        onChange={(e) =>
-          setVehicle(e.target.value.toUpperCase())
+        const totalHours =
+          (new Date(sorted[sorted.length - 1].timestamp) -
+            new Date(sorted[0].timestamp)) /
+          (1000 * 60 * 60);
+
+        const totalAvg =
+          totalHours > 0 ? totalKm / totalHours : 0;
+
+        
+
+        function findNearestIndex(coords, lat, lng) {
+          let min = Infinity;
+          let index = 0;
+
+          coords.forEach((c, i) => {
+            const d =
+              (c.lat - lat) ** 2 + (c.lng - lng) ** 2;
+
+            if (d < min) {
+              min = d;
+              index = i;
+            }
+          });
+
+          return index;
         }
-      />
 
-      <DatePicker
-        label="From Date"
-        value={fromDate}
-        onChange={handleFromDateChange}
-        slotProps={{ textField: { size: "small" } }}
-      />
+          //  SEGMENT COLORING
+        for (let i = 0; i < sorted.length - 1; i++) {
+          const startIdx = findNearestIndex(
+            coords,
+            sorted[i].lat,
+            sorted[i].lng
+          );
 
-      <TimePicker
-        label="From Time"
-        value={fromTime}
-        onChange={setFromTime}
-        format="hh:mm A"
-        viewRenderers={{
-          hours: renderTimeViewClock,
-          minutes: renderTimeViewClock,
-        }}
-        slotProps={{ textField: { size: "small" } }}
-      />
+          const endIdx = findNearestIndex(
+            coords,
+            sorted[i + 1].lat,
+            sorted[i + 1].lng
+          );
 
-      <DatePicker
-        label="To Date"
-        value={toDate}
-        minDate={fromDate}
-        onChange={setToDate}
-        slotProps={{ textField: { size: "small" } }}
-      />
+          const segment = coords
+            .slice(
+              Math.min(startIdx, endIdx),
+              Math.max(startIdx, endIdx)
+            )
+            .map(c => [c.lat, c.lng]);
 
-      <TimePicker
-        label="To Time"
-        value={toTime}
-        minTime={isSameDay ? fromTime : null}
-        onChange={setToTime}
-        format="hh:mm A"
-        viewRenderers={{
-          hours: renderTimeViewClock,
-          minutes: renderTimeViewClock,
-        }}
-        slotProps={{ textField: { size: "small" } }}
-      />
+          if (segment.length < 2) continue;
 
-      <Button variant="contained" onClick={handleSearch}>
-        Search
-      </Button>
+          let meters = 0;
+          for (let j = 1; j < segment.length; j++) {
+            meters += map.distance(
+              segment[j - 1],
+              segment[j]
+            );
+          }
 
-    </Box>
-  );
+          const km = meters / 1000;
+
+          const hours =
+            (new Date(sorted[i + 1].timestamp) -
+              new Date(sorted[i].timestamp)) /
+            (1000 * 60 * 60);
+
+          const avgSpeed = hours > 0 ? km / hours : 0;
+
+          const color =
+            avgSpeed > 40 ? "orange" : "#2563eb";
+
+          const poly = L.polyline(segment, {
+            color,
+            weight: 5
+          }).addTo(map);
+
+          routeLayersRef.current.push(poly);
+        }
+
+        map.fitBounds(L.latLngBounds(latlngs), {
+          padding: [50, 50]
+        });
+
+        onRouteCalculated?.(totalKm, totalAvg);
+      })
+      .addTo(map);
+  }, [points, onRouteCalculated]);
+
+  return <div id="map" className="map-container" />;
 }
