@@ -12,34 +12,54 @@ export default function TrackerPage() {
 
   const [included, setIncluded] = useState([]);
   const [excluded, setExcluded] = useState([]);
+
   const [stats, setStats] = useState({
     distance: 0,
     avgSpeed: 0
   });
 
-  //  AUTO FETCH WHEN VEHICLE CHANGES
+  // ✅ DEFAULT FILTERS (IMPORTANT)
+  const [filters, setFilters] = useState({
+    fromDate: "2026-01-01",
+    fromTime: "00:00",
+    toDate: "2026-01-01",
+    toTime: "23:59"
+  });
+
+  /* ===================================
+     AUTO FETCH WHEN VEHICLE CHANGES
+  =================================== */
   useEffect(() => {
     if (!selectedVehicle) return;
 
-    fetchRoute();
+    fetchRoute(filters);
   }, [selectedVehicle]);
 
-  const fetchRoute = async (
-    filters = {
-      fromDate: "2026-01-01",
-      fromTime: "00:00",
-      toDate: "2026-01-01",
-      toTime: "23:59"
+  /* ===================================
+     FETCH ROUTE FUNCTION
+  =================================== */
+  const fetchRoute = async (newFilters) => {
+    // ✅ safety check
+    if (
+      !selectedVehicle ||
+      !newFilters?.fromDate ||
+      !newFilters?.fromTime ||
+      !newFilters?.toDate ||
+      !newFilters?.toTime
+    ) {
+      return;
     }
-  ) => {
+
     try {
+      setFilters(newFilters);
+
       const data = await getRoute({
         vehicle: selectedVehicle,
-        ...filters
+        ...newFilters
       });
 
-      setIncluded(data.included);
-      setExcluded(data.excluded);
+      setIncluded(data.included || []);
+      setExcluded(data.excluded || []);
     } catch (err) {
       console.error("Route fetch error:", err);
     }
@@ -49,13 +69,20 @@ export default function TrackerPage() {
     <div className="tracker-container">
       <h2>Toll Route Tracker</h2>
 
+      {/* SEARCH PANEL */}
       <SearchPanel onSearch={fetchRoute} />
 
+      {/* STATS BAR */}
       <div className="stats-bar">
-        <span>Total Distance: {stats.distance.toFixed(2)} km</span>
-        <span>Average Speed: {stats.avgSpeed.toFixed(2)} km/h</span>
+        <span>
+          Total Distance: {stats.distance.toFixed(2)} km
+        </span>
+        <span>
+          Average Speed: {stats.avgSpeed.toFixed(2)} km/h
+        </span>
       </div>
 
+      {/* MAP + EXCLUDED PANEL */}
       <div className="tracker-layout">
         <MapView
           points={included}
