@@ -1,70 +1,98 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { setSelectedVehicle } from "../tracker/trackerSlice";
-import { getVehicles } from "../vehicle/vehicleService";
+import { useSelector } from "react-redux";
+import MapView from "../components/Map/MapView";
+import SearchPanel from "../features/route/SearchPanel";
+import ExcludedPanel from "../features/route/ExcludedPanel";
+import { getRoute } from "../features/route/routeService";
 
-export default function VehicleDashboard() {
-  const [vehicles, setVehicles] = useState([]);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+export default function TrackerPage() {
 
+  const selectedVehicle = useSelector(
+    (state) => state.tracker.selectedVehicle
+  );
+
+  const [included, setIncluded] = useState([]);
+  const [excluded, setExcluded] = useState([]);
+
+  const [stats, setStats] = useState({
+    distance: 0,
+    avgSpeed: 0
+  });
+
+  // ✅ DEFAULT FILTERS (IMPORTANT)
+  const [filters, setFilters] = useState({
+    fromDate: "2026-01-01",
+    fromTime: "00:00",
+    toDate: "2026-01-01",
+    toTime: "23:59"
+  });
+
+  /* ===================================
+     AUTO FETCH WHEN VEHICLE CHANGES
+  =================================== */
   useEffect(() => {
-    fetchVehicles();
-  }, []);
+    if (!selectedVehicle) return;
 
-  const fetchVehicles = async () => {
+    fetchRoute(filters);
+  }, [selectedVehicle]);
+
+  /* ===================================
+     FETCH ROUTE FUNCTION
+  =================================== */
+  const fetchRoute = async (newFilters = filters) => {
+
+    if (!selectedVehicle) return;
+
+    const finalFilters = {
+      fromDate: newFilters.fromDate || filters.fromDate,
+      fromTime: newFilters.fromTime || filters.fromTime,
+      toDate: newFilters.toDate || filters.toDate,
+      toTime: newFilters.toTime || filters.toTime
+    };
+
     try {
-      const data = await getVehicles();
-      setVehicles(data);
+      setFilters(finalFilters);
+
+      const data = await getRoute({
+        vehicle:
+          typeof selectedVehicle === "string"
+            ? selectedVehicle
+            : selectedVehicle?.vehicleRegNo,
+        ...finalFilters
+      });
+
+      setIncluded(data.included || []);
+      setExcluded(data.excluded || []);
+
+      // reset stats until map recalculates
+      setStats({ distance: 0, avgSpeed: 0 });
+
     } catch (err) {
-      console.error("Vehicle fetch error:", err);
+      console.error("Route fetch error:", err);
     }
   };
 
-  const handleViewRoute = (vehicle) => {
-    // store only vehicle number
-    dispatch(setSelectedVehicle(vehicle.vehicleRegNo));
-
-    navigate("/tracker");
-  };
-
   return (
-    <div className="dashboard-container">
-      <h2>Vehicle Dashboard</h2>
+    <div className="tracker-container">
+      <h2>Toll Route Tracker</h2>
 
-      <table className="vehicle-table">
-        <thead>
-          <tr>
-            <th>Vehicle No</th>
-            <th>Last Toll</th>
-            <th>Last Seen</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
-            <th>Action</th>
-          </tr>
-        </thead>
+      <SearchPanel onSearch={fetchRoute} />
 
-        <tbody>
-          {vehicles.map((v, i) => (
-            <tr key={i}>
-              <td>{v.vehicleRegNo}</td>
-              <td>{v.tollPlazaName}</td>
-              <td>{new Date(v.lastSeenTime).toLocaleString()}</td>
-              <td>{v.latitude}</td>
-              <td>{v.longitude}</td>
-              <td>
-                <button
-                  className="view-route-btn"
-                  onClick={() => handleViewRoute(v)}
-                >
-                  View Route
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="stats-bar">
+        <span>Total Distance: {stats.distance.toFixed(2)} km</span>
+        <span>Average Speed: {stats.avgSpeed.toFixed(2)} km/h</span>
+      </div>
+
+      <div className="tracker-layout">
+        <MapView
+          points={included}
+          onRouteCalculated={(distance, avgSpeed) =>
+            setStats({ distance, avgSpeed })
+          }
+        />
+
+        <ExcludedPanel excluded={excluded} />
+      </div>
     </div>
   );
 }
