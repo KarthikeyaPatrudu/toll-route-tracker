@@ -1,34 +1,24 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  included: [],
-  excluded: [],
-  distance: 0,
-  avgSpeed: 0,
+  vehicles: [],
+  selectedVehicle: null,
 };
 
-const routeSlice = createSlice({
-  name: "route",
+const vehicleSlice = createSlice({
+  name: "vehicle",
   initialState,
   reducers: {
-    setRouteData: (state, action) => {
-      state.included = action.payload.included;
-      state.excluded = action.payload.excluded;
+    setVehicles: (state, action) => {
+      state.vehicles = action.payload;
     },
-    setRouteStats: (state, action) => {
-      state.distance = action.payload.distance;
-      state.avgSpeed = action.payload.avgSpeed;
-    },
-    clearRoute: (state) => {
-      state.included = [];
-      state.excluded = [];
-      state.distance = 0;
-      state.avgSpeed = 0;
+    setSelectedVehicle: (state, action) => {
+      state.selectedVehicle = action.payload;
     },
   },
 });
 
-export const { setRouteData, setRouteStats, clearRoute } =
-  routeSlice.actions;
+export const { setVehicles, setSelectedVehicle } =
+  vehicleSlice.actions;
 
-export default routeSlice.reducer;
+export default vehicleSlice.reducer;
