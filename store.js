@@ -1,87 +1,152 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { TextField, Button, Box } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { useSelector } from "react-redux";
-import MapView from "../components/Map/MapView";
-import SearchPanel from "../features/route/SearchPanel";
-import ExcludedPanel from "../features/route/ExcludedPanel";
-import { getRoute } from "../features/route/routeService";
+import dayjs from "dayjs";
 
-export default function TrackerPage() {
+export default function SearchPanel({ onSearch }) {
 
   const selectedVehicle = useSelector(
     (state) => state.tracker.selectedVehicle
   );
 
-  const [included, setIncluded] = useState([]);
-  const [excluded, setExcluded] = useState([]);
+  const [vehicle, setVehicle] = useState("");
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
+  const [fromTime, setFromTime] = useState(null);
+  const [toTime, setToTime] = useState(null);
 
-  const [stats, setStats] = useState({
-    distance: 0,
-    avgSpeed: 0
-  });
-
-  /* ==============================
-     FETCH ROUTE (ONLY FROM SEARCH)
-  ============================== */
-  const fetchRoute = async (filters) => {
-
+  /* ===============================
+     AUTO LOAD WHEN VEHICLE CHANGES
+  =============================== */
+  useEffect(() => {
     if (!selectedVehicle) return;
 
-    const vehicleNo =
-      typeof selectedVehicle === "string"
-        ? selectedVehicle
-        : selectedVehicle?.vehicleRegNo;
+    const today = dayjs();
 
+    const startDay = today.startOf("day");
+    const endDay = today.endOf("day");
+
+    setVehicle(selectedVehicle);
+    setFromDate(startDay);
+    setToDate(endDay);
+    setFromTime(startDay);
+    setToTime(endDay);
+
+  }, [selectedVehicle]);
+
+  /* ===============================
+     AUTO SEARCH WHEN READY
+  =============================== */
+  useEffect(() => {
     if (
-      !filters?.fromDate ||
-      !filters?.fromTime ||
-      !filters?.toDate ||
-      !filters?.toTime
-    ) {
-      console.warn("Invalid filters");
+      !vehicle ||
+      !fromDate ||
+      !toDate ||
+      !fromTime ||
+      !toTime
+    ) return;
+
+    onSearch({
+      vehicle: vehicle.toUpperCase(),
+      fromDate: fromDate.format("YYYY-MM-DD"),
+      fromTime: fromTime.format("HH:mm"),
+      toDate: toDate.format("YYYY-MM-DD"),
+      toTime: toTime.format("HH:mm")
+    });
+
+  }, [vehicle, fromDate, fromTime, toDate, toTime]);
+
+  /* ===============================
+     MANUAL SEARCH
+  =============================== */
+  const handleSearch = () => {
+
+    if (!vehicle || !fromDate || !toDate || !fromTime || !toTime) {
+      alert("Please fill all fields");
       return;
     }
 
-    try {
-      const data = await getRoute({
-        vehicle: vehicleNo,
-        ...filters
-      });
-
-      console.log("ROUTE DATA:", data);
-
-      setIncluded(data.included || []);
-      setExcluded(data.excluded || []);
-
-    } catch (err) {
-      console.error("Route fetch error:", err);
+    if (fromDate.isAfter(toDate)) {
+      alert("To Date cannot be before From Date");
+      return;
     }
+
+    if (fromDate.isSame(toDate, "day") && toTime.isBefore(fromTime)) {
+      alert("To Time must be after From Time");
+      return;
+    }
+
+    onSearch({
+      vehicle: vehicle.toUpperCase(),
+      fromDate: fromDate.format("YYYY-MM-DD"),
+      fromTime: fromTime.format("HH:mm"),
+      toDate: toDate.format("YYYY-MM-DD"),
+      toTime: toTime.format("HH:mm")
+    });
   };
 
+  const isSameDay =
+    fromDate && toDate && fromDate.isSame(toDate, "day");
+
   return (
-    <div className="tracker-container">
-      <h2>Toll Route Tracker</h2>
+    <Box className="search-panel">
 
-      <SearchPanel onSearch={fetchRoute} />
+      <TextField
+        label="Vehicle Number"
+        size="small"
+        value={vehicle}
+        onChange={(e) =>
+          setVehicle(e.target.value.toUpperCase())
+        }
+      />
 
-      <div className="stats-bar">
-        <span>
-          Total Distance: {stats.distance.toFixed(2)} km
-        </span>
-        <span>
-          Average Speed: {stats.avgSpeed.toFixed(2)} km/h
-        </span>
-      </div>
+      <DatePicker
+        label="From Date"
+        value={fromDate}
+        onChange={setFromDate}
+        slotProps={{ textField: { size: "small" } }}
+      />
 
-      <div className="tracker-layout">
-        <MapView
-          points={included}
-          onRouteCalculated={(distance, avgSpeed) =>
-            setStats({ distance, avgSpeed })
-          }
-        />
+      <TimePicker
+        label="From Time"
+        value={fromTime}
+        onChange={setFromTime}
+        format="hh:mm A"
+        viewRenderers={{
+          hours: renderTimeViewClock,
+          minutes: renderTimeViewClock,
+        }}
+        slotProps={{ textField: { size: "small" } }}
+      />
 
-        <ExcludedPanel excluded={excluded} />
-      </div>
-    </div>
+      <DatePicker
+        label="To Date"
+        value={toDate}
+        minDate={fromDate}
+        onChange={setToDate}
+        slotProps={{ textField: { size: "small" } }}
+      />
+
+      <TimePicker
+        label="To Time"
+        value={toTime}
+        minTime={isSameDay ? fromTime : null}
+        onChange={setToTime}
+        format="hh:mm A"
+        viewRenderers={{
+          hours: renderTimeViewClock,
+          minutes: renderTimeViewClock,
+        }}
+        slotProps={{ textField: { size: "small" } }}
+      />
+
+      <Button variant="contained" onClick={handleSearch}>
+        Search
+      </Button>
+
+    </Box>
   );
 }
