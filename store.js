@@ -28,11 +28,14 @@ export default function MapView({ points, onRouteCalculated }) {
      ROUTE DRAWING
   ========================= */
   useEffect(() => {
-    if (!mapRef.current || !Array.isArray(points)) return;
+    if (!mapRef.current) return;
+    if (!Array.isArray(points) || points.length === 0) return;
 
     const map = mapRef.current;
 
-    // CLEAR OLD ROUTE
+    console.log("MapView points:", points);
+
+    // CLEAR OLD
     if (routingRef.current) {
       map.removeControl(routingRef.current);
       routingRef.current = null;
@@ -45,26 +48,29 @@ export default function MapView({ points, onRouteCalculated }) {
     routeLayersRef.current = [];
 
     /* =========================
-       VALID + SORTED POINTS
+       FIX: CONVERT TO NUMBERS
     ========================= */
     const sorted = points
-      .filter(
-        p =>
-          p.lat !== undefined &&
-          p.lng !== undefined &&
-          p.timestamp
-      )
       .map(p => ({
         ...p,
         lat: Number(p.lat),
         lng: Number(p.lng)
       }))
+      .filter(
+        p =>
+          !isNaN(p.lat) &&
+          !isNaN(p.lng) &&
+          p.timestamp
+      )
       .sort(
         (a, b) =>
           new Date(a.timestamp) - new Date(b.timestamp)
       );
 
-    if (sorted.length === 0) return;
+    if (sorted.length === 0) {
+      console.warn("No valid coordinates");
+      return;
+    }
 
     const latlngs = sorted.map(p => [p.lat, p.lng]);
 
@@ -72,10 +78,7 @@ export default function MapView({ points, onRouteCalculated }) {
        SINGLE POINT
     ========================= */
     if (latlngs.length === 1) {
-      const marker = L.marker(latlngs[0])
-        .addTo(map)
-        .bindPopup(sorted[0].tollPlazaName);
-
+      const marker = L.marker(latlngs[0]).addTo(map);
       markersRef.current.push(marker);
 
       map.flyTo(latlngs[0], 13);
@@ -84,59 +87,33 @@ export default function MapView({ points, onRouteCalculated }) {
     }
 
     /* =========================
-       GROUP SAME LOCATION TOLLS
+       ADD MARKERS
     ========================= */
-    const grouped = {};
-
     sorted.forEach((p, i) => {
-      const key = `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`;
-
-      if (!grouped[key]) grouped[key] = [];
-
-      grouped[key].push({ ...p, stop: i + 1 });
-    });
-
-    Object.values(grouped).forEach((group, index) => {
-      const popupHtml = `
-        <b>${group[0].tollPlazaName}</b><br/>
-        ${group
-          .map(
-            g => `
-            Stop: ${g.stop}<br/>
-            Time: ${new Date(g.timestamp).toLocaleTimeString()}<br/>
-            Date: ${new Date(g.timestamp).toLocaleDateString()}<hr/>
-          `
-          )
-          .join("")}
-      `;
-
-      const icon = L.divIcon({
-        html: `<div class="marker-number">${index + 1}</div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14],
-        className: ""
-      });
-
-      const marker = L.marker(
-        [group[0].lat, group[0].lng],
-        { icon }
-      )
+      const marker = L.marker([p.lat, p.lng])
         .addTo(map)
-        .bindPopup(popupHtml);
+        .bindPopup(
+          `<b>${p.tollPlazaName}</b><br/>
+           ${new Date(p.timestamp).toLocaleString()}`
+        );
 
       markersRef.current.push(marker);
     });
 
     /* =========================
-       REAL ROAD ROUTE
+       ROUTING
     ========================= */
     routingRef.current = L.Routing.control({
-      waypoints: latlngs.map(p => L.latLng(p[0], p[1])),
+      waypoints: latlngs.map(p =>
+        L.latLng(p[0], p[1])
+      ),
       addWaypoints: false,
       draggableWaypoints: false,
       show: false,
       createMarker: () => null,
-      lineOptions: { styles: [{ opacity: 0 }] }
+      lineOptions: {
+        styles: [{ opacity: 0 }]
+      }
     })
       .on("routesfound", e => {
         const route = e.routes[0];
@@ -148,65 +125,27 @@ export default function MapView({ points, onRouteCalculated }) {
         const totalHours =
           (new Date(sorted.at(-1).timestamp) -
             new Date(sorted[0].timestamp)) /
-          (1000 * 60 * 60);
+          3600000;
 
-        const totalAvg =
+        const avgSpeed =
           totalHours > 0 ? totalKm / totalHours : 0;
 
-        function nearestIndex(coords, lat, lng) {
-          let min = Infinity;
-          let idx = 0;
-
-          coords.forEach((c, i) => {
-            const d =
-              (c.lat - lat) ** 2 +
-              (c.lng - lng) ** 2;
-
-            if (d < min) {
-              min = d;
-              idx = i;
-            }
-          });
-
-          return idx;
-        }
-
-        /* SEGMENT COLORING */
-        for (let i = 0; i < sorted.length - 1; i++) {
-          const s = nearestIndex(
-            coords,
-            sorted[i].lat,
-            sorted[i].lng
-          );
-
-          const eIdx = nearestIndex(
-            coords,
-            sorted[i + 1].lat,
-            sorted[i + 1].lng
-          );
-
-          const segment = coords
-            .slice(Math.min(s, eIdx), Math.max(s, eIdx))
-            .map(c => [c.lat, c.lng]);
-
-          if (segment.length < 2) continue;
-
-          const poly = L.polyline(segment, {
-            color: totalAvg > 40 ? "orange" : "#2563eb",
+        L.polyline(
+          coords.map(c => [c.lat, c.lng]),
+          {
+            color: "#2563eb",
             weight: 5
-          }).addTo(map);
-
-          routeLayersRef.current.push(poly);
-        }
+          }
+        ).addTo(map);
 
         map.fitBounds(L.latLngBounds(latlngs), {
           padding: [50, 50]
         });
 
-        onRouteCalculated?.(totalKm, totalAvg);
+        onRouteCalculated?.(totalKm, avgSpeed);
       })
       .addTo(map);
-  }, [points, onRouteCalculated]);
+  }, [points]);
 
   return <div id="map" className="map-container" />;
 }
