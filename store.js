@@ -1,71 +1,67 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import MapView from "../components/MapView";
-import SearchPanel from "../components/SearchPanel";
-import ExcludedPanel from "../components/ExcludedPanel";
-import { getRoute } from "../services/routeService";
+import { createSlice } from "@reduxjs/toolkit";
 
-export default function TrackerPage() {
-  const selectedVehicle = useSelector(
-    (state) => state.tracker.selectedVehicle
-  );
+const initialState = {
+  selectedVehicle: null,
 
-  const [included, setIncluded] = useState([]);
-  const [excluded, setExcluded] = useState([]);
-  const [stats, setStats] = useState({
-    distance: 0,
-    avgSpeed: 0
-  });
+  // route data
+  includedPoints: [],
+  excludedPoints: [],
 
-  // ✅ AUTO FETCH WHEN VEHICLE CHANGES
-  useEffect(() => {
-    if (!selectedVehicle) return;
+  // stats
+  totalDistance: 0,
+  avgSpeed: 0,
 
-    fetchRoute();
-  }, [selectedVehicle]);
+  // filters (future ready)
+  filters: {
+    fromDate: null,
+    fromTime: null,
+    toDate: null,
+    toTime: null
+  },
 
-  const fetchRoute = async (
-    filters = {
-      fromDate: "2026-01-01",
-      fromTime: "00:00",
-      toDate: "2026-01-01",
-      toTime: "23:59"
+  loading: false
+};
+
+const trackerSlice = createSlice({
+  name: "tracker",
+  initialState,
+
+  reducers: {
+    setSelectedVehicle: (state, action) => {
+      state.selectedVehicle = action.payload;
+    },
+
+    setRouteData: (state, action) => {
+      state.includedPoints = action.payload.included;
+      state.excludedPoints = action.payload.excluded;
+    },
+
+    setRouteStats: (state, action) => {
+      state.totalDistance = action.payload.distance;
+      state.avgSpeed = action.payload.avgSpeed;
+    },
+
+    setFilters: (state, action) => {
+      state.filters = action.payload;
+    },
+
+    setLoading: (state, action) => {
+      state.loading = action.payload;
+    },
+
+    clearTracker: (state) => {
+      return initialState;
     }
-  ) => {
-    try {
-      const data = await getRoute({
-        vehicle: selectedVehicle,
-        ...filters
-      });
+  }
+});
 
-      setIncluded(data.included);
-      setExcluded(data.excluded);
-    } catch (err) {
-      console.error("Route fetch error:", err);
-    }
-  };
+export const {
+  setSelectedVehicle,
+  setRouteData,
+  setRouteStats,
+  setFilters,
+  setLoading,
+  clearTracker
+} = trackerSlice.actions;
 
-  return (
-    <div className="tracker-container">
-      <h2>Toll Route Tracker</h2>
-
-      <SearchPanel onSearch={fetchRoute} />
-
-      <div className="stats-bar">
-        <span>Total Distance: {stats.distance.toFixed(2)} km</span>
-        <span>Average Speed: {stats.avgSpeed.toFixed(2)} km/h</span>
-      </div>
-
-      <div className="tracker-layout">
-        <MapView
-          points={included}
-          onRouteCalculated={(distance, avgSpeed) =>
-            setStats({ distance, avgSpeed })
-          }
-        />
-
-        <ExcludedPanel excluded={excluded} />
-      </div>
-    </div>
-  );
-}
+export default trackerSlice.reducer;
