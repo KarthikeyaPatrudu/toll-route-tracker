@@ -1,110 +1,135 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { loginThunk } from "./authSlice";
-import { useNavigate } from "react-router-dom";
-import "../../styles/login.css";
-import carIcon from "../../assets/CHOLAFIN.NS.png";
+.login-container {
+  display: flex;
+  height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
 
-export default function LoginPage() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+/* ================= LEFT ================= */
+.login-left {
+  flex: 1;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+}
 
-  const { loading, error, isAuthenticated } = useSelector(
-    (state) => state.auth
-  );
+.brand-box {
+  max-width: 380px;
+}
 
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
+.car-icon {
+  width: 56px;
+  margin-bottom: 18px;
+}
 
-  /* ===============================
-     REDIRECT AFTER LOGIN
-  =============================== */
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/"); // ✅ FIXED (was /dashboard)
-    }
-  }, [isAuthenticated, navigate]);
+.brand-box h1 {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
 
-  /* ===============================
-     HANDLE INPUT CHANGE
-  =============================== */
-  const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+.brand-box p {
+  font-size: 16px;
+  opacity: 0.9;
+  margin-bottom: 24px;
+}
 
-  /* ===============================
-     HANDLE SUBMIT
-  =============================== */
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(loginThunk(form));
-  };
+.brand-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 
-  return (
-    <div className="login-container">
-      {/* ================= LEFT ================= */}
-      <div className="login-left">
-        <div className="brand-box">
-          <img src={carIcon} alt="Car Icon" className="car-icon" />
+.brand-box li {
+  margin: 10px 0;
+  font-size: 15px;
+  opacity: 0.95;
+}
 
-          <h1>TeleMetrics</h1>
-          <p>Real-time Vehicle Tracking & Analytics</p>
+/* ================= RIGHT ================= */
+.login-right {
+  flex: 1;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-          <ul>
-            <li>✔ Live GPS Tracking</li>
-            <li>✔ Fleet Management</li>
-            <li>✔ Advanced Analytics</li>
-            <li>✔ Real-time Alerts</li>
-          </ul>
-        </div>
-      </div>
+.login-form {
+  width: 380px;              /* 🔥 increased */
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: center;
+}
 
-      {/* ================= RIGHT ================= */}
-      <div className="login-right">
-        <form className="login-form" onSubmit={handleSubmit}>
-          <h2>TeleMetrics</h2>
-          <p className="subtitle">
-            Sign in to access your dashboard
-          </p>
+.login-form h2 {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
 
-          {/* EMAIL */}
-          <div className="input-group">
-            <span className="input-icon">✉️</span>
-            <input
-              name="email"
-              type="email"
-              placeholder="Enter your email"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+.subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 18px;
+}
 
-          {/* PASSWORD */}
-          <div className="input-group">
-            <span className="input-icon">🔒</span>
-            <input
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+/* ================= INPUT GROUP ================= */
+.input-group {
+  position: relative;
+  width: 100%;
+}
 
-          {error && <p className="error">{error}</p>}
+.input-group input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px 0 42px;   /* space for icon */
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+.input-group input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* ICON INSIDE INPUT */
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #9ca3af;
+}
+
+/* ================= BUTTON ================= */
+.login-form button {
+  height: 46px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.login-form button:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+/* ================= ERROR ================= */
+.error {
+  color: #dc2626;
+  font-size: 13px;
+  text-align: left;
 }
