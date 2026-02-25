@@ -1,110 +1,95 @@
-.login-container {
-  display: flex;
-  height: 100vh;
-  font-family: "Segoe UI", sans-serif;
-}
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loginThunk } from "./authSlice";
+import { useNavigate } from "react-router-dom";
+import "../../styles/login.css";
+import carIcon from "../../assets/CHOLAFIN.NS.png";
 
-/* LEFT */
-.login-left {
-  flex: 1;
-  background: linear-gradient(135deg, #6d28d9, #7c3aed); /* deeper purple tones */
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: left; /* center text alignment */
-  padding: 40px;
-}
 
-.brand-box {
-  max-width: 360px;
-}
+export default function LoginPage() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-.brand-box h1 {
-  margin: 16px 0 8px;
-  font-size: 42px;
-  font-weight: 700;
-  line-height: 1.5;
-}
+  const { loading, error, isAuthenticated } = useSelector(
+    state => state.auth
+  );
 
-.brand-box p {
-  font-size: 20px;
-  margin-bottom: 20px;
-  opacity: 0.9;
-}
+  const [form, setForm] = useState({
+    email: "",
+    password: ""
+  });
 
-.brand-box ul {
-  margin-top: 20px;
-  line-height: 1.8;
-  padding-left: 0;
-  list-style: none;
-  font-size: 20px;
-}
+  //  redirect after login
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
-.brand-box li {
-  margin: 6px 0;
-}
+  const handleChange = e => {
+    setForm(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
 
-/* RIGHT */
-.login-right {
-  flex: 1;
-  background: #ffffff; /* pure white background */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  const handleSubmit = e => {
+    e.preventDefault();
+    dispatch(loginThunk(form));
+  };
 
-.login-form {
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  text-align: center;
-}
+  return (
+     <div className="login-container">
+      {/* LEFT PANEL */}
+      <div className="login-left">
+        <div className="brand-box">
+          <img src={carIcon} alt="Car Icon" className="car-icon" />
+          <h1>TeleMetrics</h1>
+          <p>Real-time Vehicle Tracking & Analytics</p>
 
-.login-form h2 {
-  font-size: 36px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
 
-.login-form .subtitle {
-  font-size: 14px;
-  color: #6b7280;
-  margin-bottom: 12px;
-}
 
-.login-form input {
-  height: 42px;
-  padding: 0 12px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  font-size: 14px;
-}
+          <ul>
+            <li>✔ Live GPS Tracking</li>
+            <li>✔ Fleet Management</li>
+            <li>✔ Advanced Analytics</li>
+            <li>✔ Real-time Alerts</li>
+          </ul>
+        </div>
+      </div>
 
-.login-form button {
-  height: 44px;
-  border: none;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #6d28d9, #7c3aed);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
+      {/* RIGHT PANEL */}
+      <div className="login-right">
+        <form className="login-form" onSubmit={handleSubmit}>
+          <h2>TeleMetrics</h2>
+          <p className="subtitle">
+            Sign in to access your dashboard
+          </p>
 
-.login-form button:hover {
-  opacity: 0.9;
-}
+          <input
+            name="email"
+            placeholder="Enter your email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
 
-.error {
-  color: #dc2626;
-  font-size: 13px;
-}
+          <input
+            name="password"
+            type="password"
+            placeholder="Enter your password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
 
-.car-icon {
-  width: 60px;
-  height: auto;
-  /* margin: 0 auto 16px; center the logo above text */
-  display: block;
+          {error && <p className="error">{error}</p>}
+
+          <button disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }
