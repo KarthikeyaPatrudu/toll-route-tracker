@@ -1,49 +1,91 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginUser } from "./authService";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loginThunk } from "./authSlice";
+import { useNavigate } from "react-router-dom";
+import "./login.css";
 
-export const loginThunk = createAsyncThunk(
-  "auth/login",
-  async (credentials, { rejectWithValue }) => {
-    try {
-      const data = await loginUser(credentials);
-      return data;
-    } catch (err) {
-      return rejectWithValue(err.message);
+export default function LoginPage() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { loading, error, isAuthenticated } = useSelector(
+    state => state.auth
+  );
+
+  const [form, setForm] = useState({
+    email: "",
+    password: ""
+  });
+
+  // ✅ redirect after login
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
     }
-  }
-);
+  }, [isAuthenticated, navigate]);
 
-const authSlice = createSlice({
-  name: "auth",
-  initialState: {
-    user: null,
-    loading: false,
-    error: null,
-    isAuthenticated: false
-  },
-  reducers: {
-    logout(state) {
-      state.user = null;
-      state.isAuthenticated = false;
-    }
-  },
-  extraReducers: builder => {
-    builder
-      .addCase(loginThunk.pending, state => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(loginThunk.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload;
-        state.isAuthenticated = true;
-      })
-      .addCase(loginThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
-  }
-});
+  const handleChange = e => {
+    setForm(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
 
-export const { logout } = authSlice.actions;
-export default authSlice.reducer;
+  const handleSubmit = e => {
+    e.preventDefault();
+    dispatch(loginThunk(form));
+  };
+
+  return (
+    <div className="login-container">
+      {/* LEFT PANEL */}
+      <div className="login-left">
+        <div className="brand-box">
+          <div className="car-icon">🚗</div>
+          <h1>TeleMetrics</h1>
+          <p>Real-time Vehicle Tracking & Analytics</p>
+
+          <ul>
+            <li>✔ Live GPS Tracking</li>
+            <li>✔ Fleet Management</li>
+            <li>✔ Advanced Analytics</li>
+            <li>✔ Real-time Alerts</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* RIGHT PANEL */}
+      <div className="login-right">
+        <form className="login-form" onSubmit={handleSubmit}>
+          <h2>TeleMetrics</h2>
+          <p className="subtitle">
+            Sign in to access your dashboard
+          </p>
+
+          <input
+            name="email"
+            placeholder="Enter your email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            name="password"
+            type="password"
+            placeholder="Enter your password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+
+          {error && <p className="error">{error}</p>}
+
+          <button disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
