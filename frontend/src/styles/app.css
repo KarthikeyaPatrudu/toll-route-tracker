@@ -7,12 +7,17 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #ffffff;
-  color: #111827;
+  color:black;
 }
 
 /* App layout */
 .app {
   text-align: center;
+   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #babcbf2a;
+  padding: 20px;
+  min-height: 100vh;
+
 }
 
 /* Search / Navbar panel */
@@ -72,18 +77,18 @@ body {
 }
 
 .search-panel button:hover {
-  background: #1d4ed8;
+  background: #04133a;
 }
 
-/* Stats bar (distance/time) */
+/* Stats bar (distance/time) */ 
 .stats-bar {
   margin: 10px;
   display: flex;
   justify-content: center;
   gap: 30px;
   padding: 10px;
-  background: #f8fafc;
-  font-weight: 600;
+  background: #ffffff;
+  font-weight: 250;
 }
 
 /* Map */
@@ -96,7 +101,7 @@ body {
 .marker-number {
   background: #1d4ed8;
   color: #ffffff;
-  width: 26px;
+  width: 26px;  
   height: 26px;
   border-radius: 50%;
   display: flex;
@@ -124,7 +129,7 @@ body {
 
 /* Excluded panel */
 .excluded-panel {
-  width: 260px;
+  width: 250px;
   padding: 10px;
   border-left: 1px solid #e5e7eb;
   overflow-y: auto;
@@ -144,3 +149,50 @@ body {
   display: flex;
   gap: 10px;
 }
+
+.dashboard-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #244258;
+  margin-bottom: 30px;
+}
+
+.vehicle-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.vehicle-table th,
+.vehicle-table td {
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.vehicle-table thead {
+  background-color: #244258;
+  color: #ffff;
+}
+
+.vehicle-table tr:nth-child(even) {
+  background-color: #f2f6fa;
+}
+
+.vehicle-table button {
+  background-color: #ded6d6fc;
+  color: #ded6d6fc;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.vehicle-table button:hover {
+  background-color: #244258;
+  color: white;
+} 
