@@ -1,4 +1,4 @@
-/* Global styles */
+/* ================= GLOBAL ================= */
 * {
   box-sizing: border-box;
 }
@@ -7,20 +7,19 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #ffffff;
-  color:black;
+  color: black;
 }
 
-/* App layout */
+/* ================= APP ================= */
 .app {
   text-align: center;
-   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: #babcbf2a;
   padding: 20px;
   min-height: 100vh;
-
 }
 
-/* Search / Navbar panel */
+/* ================= SEARCH PANEL ================= */
 .search-panel {
   display: flex;
   gap: 12px;
@@ -31,40 +30,7 @@ body {
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* Field wrapper (for Vehicle & Date) */
-.field {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Floating label */
-.field label {
-  position: absolute;
-  top: -8px;
-  left: 10px;
-  background: white;
-  padding: 0 4px;
-  font-size: 11px;
-  color: #2563eb;
-}
-
-/* Input box */
-.field input {
-  height: 40px;
-  padding: 8px 12px;
-  font-size: 14px;
-  border: 1.5px solid #d1d5db;
-  border-radius: 6px;
-  outline: none;
-  min-width: 160px;
-}
-
-.field input:focus {
-  border-color: #2563eb;
-}
-
-/* Button */
+/* ================= BUTTON ================= */
 .search-panel button {
   height: 40px;
   padding: 0 16px;
@@ -80,7 +46,7 @@ body {
   background: #04133a;
 }
 
-/* Stats bar (distance/time) */ 
+/* ================= STATS BAR ================= */
 .stats-bar {
   margin: 10px;
   display: flex;
@@ -88,20 +54,31 @@ body {
   gap: 30px;
   padding: 10px;
   background: #ffffff;
-  font-weight: 250;
+  font-weight: 500;
 }
 
-/* Map */
+/* ================= 🔥 TRACKER LAYOUT (CRITICAL FIX) ================= */
+.tracker-layout {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  align-items: stretch;
+}
+
+/* ================= MAP ================= */
 .map-container {
-  height: calc(100vh - 120px);
-  width: 100%;
+  height: calc(100vh - 180px);
+  flex: 1;              /* ⭐ VERY IMPORTANT */
+  min-width: 0;         /* ⭐ prevents overflow */
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-/* Numbered toll markers */
+/* ================= MARKER ================= */
 .marker-number {
   background: #1d4ed8;
   color: #ffffff;
-  width: 26px;  
+  width: 26px;
   height: 26px;
   border-radius: 50%;
   display: flex;
@@ -111,28 +88,22 @@ body {
   font-size: 13px;
 }
 
-/* Remove default Leaflet white square */
 .leaflet-div-icon {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
 
-.leaflet-control-zoom a {
-  border-radius: 4px;
-}
-
-/* Layout */
-.content {
-  display: flex;
-}
-
-/* Excluded panel */
+/* ================= EXCLUDED PANEL ================= */
 .excluded-panel {
-  width: 250px;
-  padding: 10px;
+  width: 280px;
+  min-width: 260px;
+  max-height: calc(100vh - 180px);
+  padding: 12px;
   border-left: 1px solid #e5e7eb;
   overflow-y: auto;
+  background: #ffffff;
+  border-radius: 8px;
 }
 
 .excluded-item {
@@ -144,12 +115,7 @@ body {
   background: #f1f5f9;
 }
 
-/* Time group */
-.time-group {
-  display: flex;
-  gap: 10px;
-}
-
+/* ================= DASHBOARD ================= */
 .dashboard-title {
   text-align: center;
   font-size: 2rem;
@@ -182,9 +148,10 @@ body {
   background-color: #f2f6fa;
 }
 
+/* ✅ FIXED BUTTON VISIBILITY */
 .vehicle-table button {
   background-color: #ded6d6fc;
-  color: #ded6d6fc;
+  color: #244258;
   border: none;
   padding: 8px 14px;
   border-radius: 6px;
@@ -195,4 +162,4 @@ body {
 .vehicle-table button:hover {
   background-color: #244258;
   color: white;
-} 
+}
