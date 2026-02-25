@@ -1,91 +1,68 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { loginThunk } from "./authSlice";
-import { useNavigate } from "react-router-dom";
-import "./login.css";
+.login-container {
+  display: flex;
+  height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
 
-export default function LoginPage() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+/* LEFT */
+.login-left {
+  flex: 1;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  const { loading, error, isAuthenticated } = useSelector(
-    state => state.auth
-  );
+.brand-box {
+  max-width: 320px;
+}
 
-  const [form, setForm] = useState({
-    email: "",
-    password: ""
-  });
+.brand-box h1 {
+  margin: 10px 0;
+}
 
-  // ✅ redirect after login
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
-    }
-  }, [isAuthenticated, navigate]);
+.brand-box ul {
+  margin-top: 20px;
+  line-height: 2;
+  padding-left: 0;
+  list-style: none;
+}
 
-  const handleChange = e => {
-    setForm(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
+/* RIGHT */
+.login-right {
+  flex: 1;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    dispatch(loginThunk(form));
-  };
+.login-form {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 
-  return (
-    <div className="login-container">
-      {/* LEFT PANEL */}
-      <div className="login-left">
-        <div className="brand-box">
-          <div className="car-icon">🚗</div>
-          <h1>TeleMetrics</h1>
-          <p>Real-time Vehicle Tracking & Analytics</p>
+.login-form input {
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+}
 
-          <ul>
-            <li>✔ Live GPS Tracking</li>
-            <li>✔ Fleet Management</li>
-            <li>✔ Advanced Analytics</li>
-            <li>✔ Real-time Alerts</li>
-          </ul>
-        </div>
-      </div>
+.login-form button {
+  height: 44px;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
 
-      {/* RIGHT PANEL */}
-      <div className="login-right">
-        <form className="login-form" onSubmit={handleSubmit}>
-          <h2>TeleMetrics</h2>
-          <p className="subtitle">
-            Sign in to access your dashboard
-          </p>
-
-          <input
-            name="email"
-            placeholder="Enter your email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            name="password"
-            type="password"
-            placeholder="Enter your password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-
-          {error && <p className="error">{error}</p>}
-
-          <button disabled={loading}>
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+.error {
+  color: red;
+  font-size: 13px;
 }
