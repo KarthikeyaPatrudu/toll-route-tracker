@@ -1,25 +1,25 @@
-// ================= LOGIN API =================
-app.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import VehicleDashboard from "../features/vehicle/VehicleDashboard";
+import TrackerPage from "../pages/TrackerPage";
+import LoginPage from "../pages/LoginPage"; // 👈 add
+import "../styles/app.css";
 
-    // 🔹 TEMP MOCK LOGIN (for development)
-    if (email === "admin@gmail.com" && password === "admin123") {
-      return res.json({
-        token: "mock-jwt-token",
-        user: {
-          email: "admin@gmail.com",
-          name: "Admin User"
-        }
-      });
-    }
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Login */}
+        <Route path="/login" element={<LoginPage />} />
 
-    return res.status(401).json({
-      error: "Invalid credentials"
-    });
+        {/* Dashboard */}
+        <Route path="/dashboard" element={<VehicleDashboard />} />
 
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+        {/* Tracker */}
+        <Route path="/tracker" element={<TrackerPage />} />
+
+        {/* default */}
+        <Route path="*" element={<LoginPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
