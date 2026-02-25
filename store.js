@@ -1,68 +1,25 @@
-.login-container {
-  display: flex;
-  height: 100vh;
-  font-family: "Segoe UI", sans-serif;
-}
+// ================= LOGIN API =================
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-/* LEFT */
-.login-left {
-  flex: 1;
-  background: linear-gradient(135deg, #6366f1, #7c3aed);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    // 🔹 TEMP MOCK LOGIN (for development)
+    if (email === "admin@gmail.com" && password === "admin123") {
+      return res.json({
+        token: "mock-jwt-token",
+        user: {
+          email: "admin@gmail.com",
+          name: "Admin User"
+        }
+      });
+    }
 
-.brand-box {
-  max-width: 320px;
-}
+    return res.status(401).json({
+      error: "Invalid credentials"
+    });
 
-.brand-box h1 {
-  margin: 10px 0;
-}
-
-.brand-box ul {
-  margin-top: 20px;
-  line-height: 2;
-  padding-left: 0;
-  list-style: none;
-}
-
-/* RIGHT */
-.login-right {
-  flex: 1;
-  background: #f3f4f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.login-form {
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.login-form input {
-  height: 42px;
-  padding: 0 12px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-}
-
-.login-form button {
-  height: 44px;
-  border: none;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #6366f1, #7c3aed);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.error {
-  color: red;
-  font-size: 13px;
-}
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
