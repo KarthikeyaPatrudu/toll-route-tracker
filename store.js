@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
-import "../../styles/app.css";
+import "../../styles/layout.css";
 
-export default function AppShell({ children }) {
+export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
@@ -21,8 +22,10 @@ export default function AppShell({ children }) {
           </button>
         </div>
 
-        {/* PAGE CONTENT */}
-        <div className="main-content">{children}</div>
+        {/* ✅ THIS IS CRITICAL */}
+        <main className="main-content">
+          <Outlet />
+        </main>
       </div>
     </div>
   );
