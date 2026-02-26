@@ -1,121 +1,166 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { setSelectedVehicle } from "../features/tracker/trackerSlice";
-import { getVehicles } from "../features/vehicle/vehicleService";
-import "../styles/app.css";
+i am sharing my app.css so give me updated one by incluing step 2 ,
+  and also resolve if any errors are there
+* {
+  box-sizing: border-box;
+}
 
-export default function VehicleDashboard() {
-  const [vehicles, setVehicles] = useState([]);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #ffffff;
+  color: black;
+}
 
-  useEffect(() => {
-    fetchVehicles();
-  }, []);
+.app {
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #babcbf2a;
+  padding: 20px;
+  min-height: 100vh;
+}
 
-  const fetchVehicles = async () => {
-    try {
-      const data = await getVehicles();
-      setVehicles(data || []);
-    } catch (err) {
-      console.error("Vehicle fetch error:", err);
-    }
-  };
+.search-panel {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
 
-  const handleViewRoute = (vehicle) => {
-    dispatch(
-      setSelectedVehicle({
-        vehicleRegNo: vehicle.vehicleRegNo,
-        lastSeenTime: vehicle.lastSeenTime,
-      })
-    );
+.search-panel button {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
 
-    navigate("/tracker");
-  };
+.search-panel button:hover {
+  background: #04133a;
+}
 
-  // 🔥 derive status like reference UI
-  const getStatus = (lastSeenTime) => {
-    const diffMin =
-      (Date.now() - new Date(lastSeenTime)) / (1000 * 60);
+.stats-bar {
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 10px;
+  background: #ffffff;
+  font-weight: 500;
+}
 
-    if (diffMin <= 2) return "Moving";
-    if (diffMin <= 10) return "Idle";
-    return "Stopped";
-  };
+.tracker-layout {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  align-items: stretch;
+}
 
-  return (
-    <div className="fleet-wrapper">
-      <div className="fleet-card">
-        {/* HEADER */}
-        <div className="fleet-header">
-          <h2>Vehicle Fleet</h2>
-          <button className="refresh-btn" onClick={fetchVehicles}>
-            Refresh
-          </button>
-        </div>
+.tracker-container{
+  text-align: center;
+}
 
-        {/* TABLE */}
-        <table className="fleet-table">
-          <thead>
-            <tr>
-              <th>Vehicle ID</th>
-              <th>Name</th>
-              <th>Location</th>
-              <th>Speed</th>
-              <th>Status</th>
-              <th>Last Update</th>
-              <th></th>
-            </tr>
-          </thead>
+.map-container {
+  height: calc(100vh - 180px);
+  flex: 1;              
+  min-width: 0;         
+  border-radius: 8px;
+  overflow: hidden;
+}
 
-          <tbody>
-            {vehicles.map((v, i) => {
-              const status = getStatus(v.lastSeenTime);
+.marker-number {
+  background: #1d4ed8;
+  color: #ffffff;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 13px;
+}
 
-              return (
-                <tr key={i}>
-                  <td className="vehicle-id">
-                    {v.vehicleRegNo}
-                  </td>
+.leaflet-div-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 
-                  <td>{v.tollPlazaName || "—"}</td>
+.excluded-panel {
+  text-align: center;
+  width: 280px;
+  min-width: 260px;
+  max-height: calc(100vh - 180px);
+  padding: 12px;
+  border-left: 1px solid #e5e7eb;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 8px;
+}
 
-                  <td>
-                    {Number(v.latitude).toFixed(4)},{" "}
-                    {Number(v.longitude).toFixed(4)}
-                  </td>
+.excluded-item {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
 
-                  <td>
-                    {status === "Moving" ? "45 km/h" : "0 km/h"}
-                  </td>
+.excluded-item:hover {
+  background: #f1f5f9;
+}
 
-                  <td>
-                    <span
-                      className={`status-badge ${status.toLowerCase()}`}
-                    >
-                      {status}
-                    </span>
-                  </td>
+/* .dashboard-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #244258;
+  margin-bottom: 30px;
+} */
 
-                  <td>
-                    {new Date(v.lastSeenTime).toLocaleTimeString()}
-                  </td>
+.dashboard-container{
+  text-align: center;
+}
 
-                  <td>
-                    <button
-                      className="view-route-btn"
-                      onClick={() => handleViewRoute(v)}
-                    >
-                      View Route
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+.vehicle-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.vehicle-table th,
+.vehicle-table td {
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.vehicle-table thead {
+  background-color: #244258;
+  color: #ffff;
+}
+
+.vehicle-table tr:nth-child(even) {
+  background-color: #f2f6fa;
+}
+
+
+.vehicle-table button {
+  background-color: #ded6d6fc;
+  color: #244258;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.vehicle-table button:hover {
+  background-color: #244258;
+  color: white;
 }
