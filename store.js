@@ -1,78 +1,86 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginUser } from "./authService";
+currently my Vehicle Dashboard looks like this i want it to like the above img.
+   i am also sahring the  Vehicle Dashboard.jsx and give me exact UI code
 
-/* =========================
-   ASYNC LOGIN THUNK
-========================= */
-export const loginThunk = createAsyncThunk(
-  "auth/login",
-  async (credentials, { rejectWithValue }) => {
+   import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setSelectedVehicle } from "../features/tracker/trackerSlice";
+import { getVehicles } from "../features/vehicle/vehicleService";
+
+export default function VehicleDashboard() {
+  const [vehicles, setVehicles] = useState([]);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    fetchVehicles();
+  }, []);
+
+  const fetchVehicles = async () => {
     try {
-      const data = await loginUser(credentials);
-      return data;
+      const data = await getVehicles();
+      setVehicles(data);
     } catch (err) {
-      // safer error extraction
-      return rejectWithValue(
-        err?.response?.data?.message ||
-        err?.message ||
-        "Login failed"
-      );
+      console.error("Vehicle fetch error:", err);
     }
-  }
-);
+  };
 
-/* =========================
-   INITIAL STATE
-========================= */
-const initialState = {
-  user: null,
-  loading: false,
-  error: null,
-  isAuthenticated: false
-};
+  const handleViewRoute = (vehicle) => {
 
-/* =========================
-   SLICE
-========================= */
-const authSlice = createSlice({
-  name: "auth",
-  initialState,
-  reducers: {
-    /* 🔥 LOGOUT (production safe) */
-    logout: (state) => {
-      state.user = null;
-      state.isAuthenticated = false;
-      state.loading = false;
-      state.error = null;
-    }
-  },
-  extraReducers: (builder) => {
-    builder
-      /* pending */
-      .addCase(loginThunk.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+    // STORE VEHICLE + LAST SEEN TIME
+    dispatch(
+      setSelectedVehicle({
+        vehicleRegNo: vehicle.vehicleRegNo,
+        lastSeenTime: vehicle.lastSeenTime
       })
+    );
 
-      /* success */
-      .addCase(loginThunk.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload;
-        state.isAuthenticated = true;
-        state.error = null;
-      })
+    navigate("/tracker");
+  };
 
-      /* failed */
-      .addCase(loginThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Login failed";
-        state.isAuthenticated = false;
-      });
-  }
-});
+  <div className="fleet-card">
+  <div className="fleet-header">
+    <h2>Vehicle Fleet</h2>
+    <button className="refresh-btn">Refresh</button>
+  </div>
 
-/* =========================
-   EXPORTS
-========================= */
-export const { logout } = authSlice.actions;
-export default authSlice.reducer;
+</div>
+  return (
+    <div className="dashboard-container">
+      <h2>Vehicle Dashboard</h2>
+
+      <table className="vehicle-table">
+        <thead>
+          <tr>
+            <th>Vehicle No</th>
+            <th>Last Toll</th>
+            <th>Last Seen</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {vehicles.map((v, i) => (
+            <tr key={i}>
+              <td>{v.vehicleRegNo}</td>
+              <td>{v.tollPlazaName}</td>
+              <td>{new Date(v.lastSeenTime).toLocaleString()}</td>
+              <td>{v.latitude}</td>
+              <td>{v.longitude}</td>
+              <td>
+                <button
+                  className="view-route-btn"
+                  onClick={() => handleViewRoute(v)}
+                >
+                  View Route
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
