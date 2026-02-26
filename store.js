@@ -49,3 +49,4 @@
 │   ├── ⚙️ package.json
 │   └── 📄 vite.config.js
 └── ⚙️ .gitignore
+this is currently my project structure , so now guide me from sracth to create the UI i asked for 
