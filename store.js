@@ -1,15 +1,2 @@
-import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
-import AppShell from "../components/layout/AppShell";
-
-export default function ProtectedLayout() {
-  const { isAuthenticated } = useSelector((state) => state.auth);
-
-  // 🔐 If not logged in → go to login
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // ✅ If logged in → render full app shell
-  return <AppShell />;
-}
+here you can see the collapse icons were created two times and where the inside side navbar is functional and outside the navbar the icons are not functional .
+  i want to remove the collapse icons inside the sidenavbar and keep them outside like in the img and make them functinal also
