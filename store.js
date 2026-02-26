@@ -1,43 +1,37 @@
-import { NavLink } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { logout } from "../../features/auth/authSlice";
-import "../../styles/layout.css";
+/* wrapper */
 
-export default function Sidebar({ isOpen }) {
-  const dispatch = useDispatch();
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 
-  const handleLogout = () => {
-    dispatch(logout());
-  };
+/* topbar */
 
-  return (
-    <aside className={`sidebar ${isOpen ? "open" : "collapsed"}`}>
-      
-      {/* LOGO */}
-      <div className="logo">
-        🚗 {isOpen && "TeleMetrics"}
-      </div>
+.topbar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
 
-      {/* NAV */}
-      <nav className="nav-menu">
-        <NavLink to="/dashboard" className="nav-item">
-          ⬜ {isOpen && "Dashboard"}
-        </NavLink>
+/* toggle button */
 
-        <NavLink to="/vehicles" className="nav-item">
-          🚚 {isOpen && "Vehicles"}
-        </NavLink>
+.menu-toggle {
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
 
-        <div className="nav-item disabled">📍 {isOpen && "Live Tracking"}</div>
-        <div className="nav-item disabled">📄 {isOpen && "Reports"}</div>
-        <div className="nav-item disabled">📊 {isOpen && "Analytics"}</div>
-        <div className="nav-item disabled">⚙️ {isOpen && "Settings"}</div>
-      </nav>
+/* collapsed sidebar */
 
-      {/* LOGOUT */}
-      <button className="logout-btn" onClick={handleLogout}>
-        ↪ {isOpen && "Logout"}
-      </button>
-    </aside>
-  );
+.sidebar.collapsed {
+  width: 72px;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
 }
