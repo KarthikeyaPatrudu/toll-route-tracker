@@ -1,23 +1,32 @@
-i am sharing my app.css so give me updated one by incluing step 2 ,
-  and also resolve if any errors are there
+/* ===============================
+   GLOBAL
+================================ */
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background: #ffffff;
-  color: black;
+  color: #111827;
 }
+
+/* ===============================
+   APP WRAPPER
+================================ */
 
 .app {
   text-align: center;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: #babcbf2a;
   padding: 20px;
   min-height: 100vh;
 }
+
+/* ===============================
+   SEARCH PANEL
+================================ */
 
 .search-panel {
   display: flex;
@@ -44,6 +53,10 @@ body {
   background: #04133a;
 }
 
+/* ===============================
+   STATS BAR
+================================ */
+
 .stats-bar {
   margin: 10px;
   display: flex;
@@ -54,6 +67,10 @@ body {
   font-weight: 500;
 }
 
+/* ===============================
+   TRACKER LAYOUT
+================================ */
+
 .tracker-layout {
   display: flex;
   gap: 12px;
@@ -61,14 +78,18 @@ body {
   align-items: stretch;
 }
 
-.tracker-container{
+.tracker-container {
   text-align: center;
 }
 
+/* ===============================
+   MAP
+================================ */
+
 .map-container {
   height: calc(100vh - 180px);
-  flex: 1;              
-  min-width: 0;         
+  flex: 1;
+  min-width: 0;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -92,6 +113,10 @@ body {
   box-shadow: none !important;
 }
 
+/* ===============================
+   EXCLUDED PANEL
+================================ */
+
 .excluded-panel {
   text-align: center;
   width: 280px;
@@ -113,54 +138,130 @@ body {
   background: #f1f5f9;
 }
 
-/* .dashboard-title {
-  text-align: center;
-  font-size: 2rem;
-  font-weight: 900;
-  color: #244258;
-  margin-bottom: 30px;
-} */
+/* ===============================
+   OLD DASHBOARD (kept for safety)
+================================ */
 
-.dashboard-container{
+.dashboard-container {
   text-align: center;
 }
 
-.vehicle-table {
+/* ===============================
+   🔥 NEW FLEET DASHBOARD UI
+================================ */
+
+.fleet-wrapper {
+  padding: 24px;
+  background: #f3f4f6;
+  min-height: calc(100vh - 60px);
+}
+
+.fleet-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+/* header */
+
+.fleet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.fleet-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* refresh button */
+
+.refresh-btn {
+  background: #6366f1;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.refresh-btn:hover {
+  background: #4f46e5;
+}
+
+/* table */
+
+.fleet-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  border-radius: 6px;
-  overflow: hidden;
+  font-size: 14px;
 }
 
-.vehicle-table th,
-.vehicle-table td {
-  padding: 12px 16px;
+.fleet-table thead {
+  background: #f9fafb;
+}
+
+.fleet-table th {
   text-align: left;
+  padding: 12px;
+  color: #6b7280;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.vehicle-table thead {
-  background-color: #244258;
-  color: #ffff;
+.fleet-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #111827;
 }
 
-.vehicle-table tr:nth-child(even) {
-  background-color: #f2f6fa;
+.vehicle-id {
+  font-weight: 600;
+  color: #374151;
 }
 
+/* status badges */
 
-.vehicle-table button {
-  background-color: #ded6d6fc;
-  color: #244258;
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.moving {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.stopped {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.idle {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+/* view route button */
+
+.view-route-btn {
+  background: #e5e7eb;
   border: none;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 13px;
+  font-weight: 500;
 }
 
-.vehicle-table button:hover {
-  background-color: #244258;
-  color: white;
+.view-route-btn:hover {
+  background: #d1d5db;
 }
