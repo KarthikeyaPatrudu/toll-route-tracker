@@ -1,50 +1,41 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { logout } from "../../features/auth/authSlice";
+import LoginPage from "../features/auth/LoginPage";
+import TrackerPage from "../pages/TrackerPage";
+import VehicleDashboard from "../pages/VehicleDashboard";
+import AppLayout from "../components/layout/AppLayout";
 
-export default function AppLayout() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+function ProtectedRoute({ children }) {
+  const isAuthenticated = useSelector(
+    (state) => state.auth.isAuthenticated
+  );
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
-  };
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+}
 
+export default function App() {
   return (
-    <div className="app-shell">
-      {/* SIDEBAR */}
-      <aside className="sidebar">
-        <div className="sidebar-top">
-          <h2 className="logo">🚚 TeleMetrics</h2>
+    <BrowserRouter>
+      <Routes>
+        {/* LOGIN */}
+        <Route path="/login" element={<LoginPage />} />
 
-          <nav className="nav-menu">
-            <NavLink to="/dashboard" className="nav-item">
-              Dashboard
-            </NavLink>
+        {/* PROTECTED APP SHELL */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<VehicleDashboard />} />
+          <Route path="/vehicles" element={<VehicleDashboard />} />
+          <Route path="/tracker" element={<TrackerPage />} />
+        </Route>
 
-            <NavLink to="/vehicles" className="nav-item">
-              Vehicles
-            </NavLink>
-
-            {/* placeholders (not functional yet) */}
-            <div className="nav-item disabled">Live Tracking</div>
-            <div className="nav-item disabled">Reports</div>
-            <div className="nav-item disabled">Analytics</div>
-            <div className="nav-item disabled">Settings</div>
-          </nav>
-        </div>
-
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <main className="main-content">
-        <Outlet />
-      </main>
-    </div>
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
