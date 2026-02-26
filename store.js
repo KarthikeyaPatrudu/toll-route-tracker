@@ -1,87 +1,118 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { logout } from "../../features/auth/authSlice";
-import { useState } from "react";
+/* ===============================
+   SIDEBAR
+================================ */
 
-import {
-  FiGrid,
-  FiTruck,
-  FiMapPin,
-  FiFileText,
-  FiBarChart2,
-  FiSettings,
-  FiLogOut,
-  FiMenu,
-  FiX
-} from "react-icons/fi";
+.sidebar {
+  width: 240px;
+  background: linear-gradient(180deg, #0f172a, #1e293b);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px 14px;
+  transition: width 0.25s ease;
+}
 
-export default function Sidebar() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+/* COLLAPSED STATE */
 
-  const [collapsed, setCollapsed] = useState(false);
+.sidebar.collapsed {
+  width: 72px;
+}
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
-  };
+/* LOGO ROW */
 
-  const toggleSidebar = () => {
-    setCollapsed(prev => !prev);
-  };
+.logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
 
-  return (
-    <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
-      
-      {/* ===== TOP ===== */}
-      <div>
-        <div className="logo-row">
-          {!collapsed && <div className="logo">🚗 TeleMetrics</div>}
+.logo {
+  font-size: 18px;
+  font-weight: 700;
+}
 
-          <button className="collapse-btn" onClick={toggleSidebar}>
-            {collapsed ? <FiMenu /> : <FiX />}
-          </button>
-        </div>
+/* COLLAPSE BUTTON */
 
-        {/* NAV */}
-        <nav className="nav-menu">
-          <NavLink to="/dashboard" className="nav-item">
-            <FiGrid />
-            {!collapsed && <span>Dashboard</span>}
-          </NavLink>
+.collapse-btn {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  cursor: pointer;
+  font-size: 18px;
+}
 
-          <NavLink to="/vehicles" className="nav-item">
-            <FiTruck />
-            {!collapsed && <span>Vehicles</span>}
-          </NavLink>
+/* NAV */
 
-          <div className="nav-item disabled">
-            <FiMapPin />
-            {!collapsed && <span>Live Tracking</span>}
-          </div>
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-          <div className="nav-item disabled">
-            <FiFileText />
-            {!collapsed && <span>Reports</span>}
-          </div>
+/* NAV ITEM */
 
-          <div className="nav-item disabled">
-            <FiBarChart2 />
-            {!collapsed && <span>Analytics</span>}
-          </div>
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
 
-          <div className="nav-item disabled">
-            <FiSettings />
-            {!collapsed && <span>Settings</span>}
-          </div>
-        </nav>
-      </div>
+/* ICON SIZE */
 
-      {/* ===== LOGOUT ===== */}
-      <button className="logout-btn" onClick={handleLogout}>
-        <FiLogOut />
-        {!collapsed && <span>Logout</span>}
-      </button>
-    </aside>
-  );
+.nav-item svg {
+  font-size: 18px;
+  min-width: 18px;
+}
+
+/* hover */
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+/* ACTIVE */
+
+.nav-item.active {
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+}
+
+/* disabled */
+
+.nav-item.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ===============================
+   LOGOUT
+================================ */
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
