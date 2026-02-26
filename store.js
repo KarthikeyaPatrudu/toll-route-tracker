@@ -1,2 +1,35 @@
-here you can see the collapse icons were created two times and where the inside side navbar is functional and outside the navbar the icons are not functional .
-  i want to remove the collapse icons inside the sidenavbar and keep them outside like in the img and make them functinal also
+import { useState } from "react";
+import Sidebar from "./Sidebar";
+import "../../styles/layout.css";
+
+export default function AppShell({ children }) {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(prev => !prev);
+  };
+
+  return (
+    <div className={`app-shell ${sidebarOpen ? "sidebar-open" : "sidebar-collapsed"}`}>
+      
+      {/* SIDEBAR */}
+      <Sidebar isOpen={sidebarOpen} />
+
+      {/* RIGHT SIDE */}
+      <div className="main-wrapper">
+        
+        {/* ✅ ONLY TOGGLE BUTTON (single source) */}
+        <div className="topbar">
+          <button className="menu-toggle" onClick={toggleSidebar}>
+            {sidebarOpen ? "✕" : "☰"}
+          </button>
+        </div>
+
+        {/* PAGE CONTENT */}
+        <div className="main-content">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
