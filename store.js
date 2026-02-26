@@ -1,32 +1,48 @@
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar";
-import "../../styles/layout.css";
+import { useDispatch } from "react-redux";
+import { useNavigate, Outlet, NavLink } from "react-router-dom";
+import { logout } from "../features/auth/authSlice";
+import "../styles/layout.css";
 
-export default function AppShell() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+export default function ProtectedLayout() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const toggleSidebar = () => {
-    setSidebarOpen(prev => !prev);
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
   };
 
   return (
     <div className="app-shell">
-      <Sidebar isOpen={sidebarOpen} />
+      {/* SIDEBAR */}
+      <aside className="sidebar">
+        <div className="sidebar-logo">TeleMetrics</div>
 
-      <div className="main-wrapper">
-        {/* TOP BAR */}
-        <div className="topbar">
-          <button className="menu-toggle" onClick={toggleSidebar}>
-            {sidebarOpen ? "✕" : "☰"}
-          </button>
-        </div>
+        <nav className="sidebar-nav">
+          <NavLink to="/dashboard" className="nav-item">
+            Dashboard
+          </NavLink>
 
-        {/* ✅ THIS IS CRITICAL */}
-        <main className="main-content">
-          <Outlet />
-        </main>
-      </div>
+          <NavLink to="/vehicles" className="nav-item">
+            Vehicles
+          </NavLink>
+
+          {/* future pages */}
+          <div className="nav-item disabled">Live Tracking</div>
+          <div className="nav-item disabled">Reports</div>
+          <div className="nav-item disabled">Analytics</div>
+          <div className="nav-item disabled">Settings</div>
+        </nav>
+
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
+      </aside>
+
+      {/* MAIN */}
+      <main className="main-content">
+        <Outlet />
+      </main>
     </div>
   );
 }
