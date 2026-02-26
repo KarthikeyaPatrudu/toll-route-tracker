@@ -1,40 +1,53 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { logout } from "../../features/auth/authSlice";
+/* wrapper beside sidebar */
 
-export default function Sidebar({ isOpen }) {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/");
-  };
+/* ===============================
+   TOP BAR
+================================ */
 
-  return (
-    <aside className={`sidebar ${!isOpen ? "collapsed" : ""}`}>
-      <div>
-        <div className="logo">🚗 TeleMetrics</div>
+.topbar {
+  height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+}
 
-        <nav className="nav-menu">
-          <NavLink to="/dashboard" className="nav-item">
-            Dashboard
-          </NavLink>
+/* toggle button */
 
-          <NavLink to="/vehicles" className="nav-item">
-            Vehicles
-          </NavLink>
+.menu-toggle {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
 
-          <div className="nav-item disabled">Live Tracking</div>
-          <div className="nav-item disabled">Reports</div>
-          <div className="nav-item disabled">Analytics</div>
-          <div className="nav-item disabled">Settings</div>
-        </nav>
-      </div>
+/* ===============================
+   SIDEBAR COLLAPSE
+================================ */
 
-      <button className="logout-btn" onClick={handleLogout}>
-        Logout
-      </button>
-    </aside>
-  );
+.sidebar {
+  width: 240px;
+  transition: width 0.25s ease;
+}
+
+.sidebar.collapsed {
+  width: 72px;
+}
+
+/* hide text when collapsed */
+
+.sidebar.collapsed .logo,
+.sidebar.collapsed .nav-item {
+  font-size: 0;
+}
+
+.sidebar.collapsed .nav-item::before {
+  font-size: 18px;
 }
