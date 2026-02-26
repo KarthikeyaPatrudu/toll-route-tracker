@@ -1,2 +1,29 @@
-if see the img beside navbar theres a Cross symbol 
-and when i click it  responds like this img help me in doing it
+import { useState } from "react";
+import Sidebar from "./Sidebar";
+import "../../styles/app.css";
+
+export default function AppShell({ children }) {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(prev => !prev);
+  };
+
+  return (
+    <div className="app-shell">
+      <Sidebar isOpen={sidebarOpen} />
+
+      <div className="main-wrapper">
+        {/* TOP BAR */}
+        <div className="topbar">
+          <button className="menu-toggle" onClick={toggleSidebar}>
+            {sidebarOpen ? "✕" : "☰"}
+          </button>
+        </div>
+
+        {/* PAGE CONTENT */}
+        <div className="main-content">{children}</div>
+      </div>
+    </div>
+  );
+}
