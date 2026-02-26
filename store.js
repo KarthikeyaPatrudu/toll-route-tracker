@@ -1,11 +1,9 @@
-currently my Vehicle Dashboard looks like this i want it to like the above img.
-   i am also sahring the  Vehicle Dashboard.jsx and give me exact UI code
-
-   import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setSelectedVehicle } from "../features/tracker/trackerSlice";
 import { getVehicles } from "../features/vehicle/vehicleService";
+import "../styles/app.css";
 
 export default function VehicleDashboard() {
   const [vehicles, setVehicles] = useState([]);
@@ -19,68 +17,105 @@ export default function VehicleDashboard() {
   const fetchVehicles = async () => {
     try {
       const data = await getVehicles();
-      setVehicles(data);
+      setVehicles(data || []);
     } catch (err) {
       console.error("Vehicle fetch error:", err);
     }
   };
 
   const handleViewRoute = (vehicle) => {
-
-    // STORE VEHICLE + LAST SEEN TIME
     dispatch(
       setSelectedVehicle({
         vehicleRegNo: vehicle.vehicleRegNo,
-        lastSeenTime: vehicle.lastSeenTime
+        lastSeenTime: vehicle.lastSeenTime,
       })
     );
 
     navigate("/tracker");
   };
 
-  <div className="fleet-card">
-  <div className="fleet-header">
-    <h2>Vehicle Fleet</h2>
-    <button className="refresh-btn">Refresh</button>
-  </div>
+  // 🔥 derive status like reference UI
+  const getStatus = (lastSeenTime) => {
+    const diffMin =
+      (Date.now() - new Date(lastSeenTime)) / (1000 * 60);
 
-</div>
+    if (diffMin <= 2) return "Moving";
+    if (diffMin <= 10) return "Idle";
+    return "Stopped";
+  };
+
   return (
-    <div className="dashboard-container">
-      <h2>Vehicle Dashboard</h2>
+    <div className="fleet-wrapper">
+      <div className="fleet-card">
+        {/* HEADER */}
+        <div className="fleet-header">
+          <h2>Vehicle Fleet</h2>
+          <button className="refresh-btn" onClick={fetchVehicles}>
+            Refresh
+          </button>
+        </div>
 
-      <table className="vehicle-table">
-        <thead>
-          <tr>
-            <th>Vehicle No</th>
-            <th>Last Toll</th>
-            <th>Last Seen</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {vehicles.map((v, i) => (
-            <tr key={i}>
-              <td>{v.vehicleRegNo}</td>
-              <td>{v.tollPlazaName}</td>
-              <td>{new Date(v.lastSeenTime).toLocaleString()}</td>
-              <td>{v.latitude}</td>
-              <td>{v.longitude}</td>
-              <td>
-                <button
-                  className="view-route-btn"
-                  onClick={() => handleViewRoute(v)}
-                >
-                  View Route
-                </button>
-              </td>
+        {/* TABLE */}
+        <table className="fleet-table">
+          <thead>
+            <tr>
+              <th>Vehicle ID</th>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Speed</th>
+              <th>Status</th>
+              <th>Last Update</th>
+              <th></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {vehicles.map((v, i) => {
+              const status = getStatus(v.lastSeenTime);
+
+              return (
+                <tr key={i}>
+                  <td className="vehicle-id">
+                    {v.vehicleRegNo}
+                  </td>
+
+                  <td>{v.tollPlazaName || "—"}</td>
+
+                  <td>
+                    {Number(v.latitude).toFixed(4)},{" "}
+                    {Number(v.longitude).toFixed(4)}
+                  </td>
+
+                  <td>
+                    {status === "Moving" ? "45 km/h" : "0 km/h"}
+                  </td>
+
+                  <td>
+                    <span
+                      className={`status-badge ${status.toLowerCase()}`}
+                    >
+                      {status}
+                    </span>
+                  </td>
+
+                  <td>
+                    {new Date(v.lastSeenTime).toLocaleTimeString()}
+                  </td>
+
+                  <td>
+                    <button
+                      className="view-route-btn"
+                      onClick={() => handleViewRoute(v)}
+                    >
+                      View Route
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
