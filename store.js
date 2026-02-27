@@ -1,62 +1,53 @@
-now forget about the realmaptestdata.jsx task now we will come back to our main project .
-if you see the imgs i want   vehicle fleet table below live location Map div in Dashboard Overview page .
-  help me in doing it . and i am pasting the img code also. and this is a sample table for UI testing so add more exaple values
-
-   {/* Vehicles Table */}
-          <div className="vehicles-section">
-            <div className="section-header">
-              <h2 className="section-title">Vehicle Fleet</h2>
-              <button className="refresh-btn">
-                <Activity size={16} />
-                Refresh
-              </button>
-            </div>
-
-            <div className="table-container">
-              <table className="vehicles-table">
-                <thead>
-                  <tr>
-                    <th>Vehicle ID</th>
-                    <th>Name</th>
-                    <th>Driver</th>
-                    <th>Location</th>
-                    <th>Speed</th>
-                    <th>Status</th>
-                    <th>Last Update</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {vehiclesData.map((vehicle) => (
-                    <tr key={vehicle.id}>
-                      <td className="vehicle-id">{vehicle.id}</td>
-                      <td className="vehicle-name">
-                        <Car size={16} className="table-icon" />
-                        {vehicle.name}
-                      </td>
-                      <td>{vehicle.driver}</td>
-                      <td className="location-cell">
-                        <Navigation size={14} className="table-icon" />
-                        {vehicle.lat.toFixed(4)}, {vehicle.lng.toFixed(4)}
-                      </td>
-                      <td>{vehicle.speed} km/h</td>
-                      <td>
-                        <span
-                          className={`status-badge status-${vehicle.status}`}
-                        >
-                          {vehicle.status}
-                        </span>
-                      </td>
-                      <td className="last-update">
-                        <Clock size={14} className="table-icon" />
-                        {vehicle.lastUpdate}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
+// 🔥 TEMP SAMPLE DATA (UI testing)
+const vehiclesData = [
+  {
+    id: "VH001",
+    name: "Tesla Model 3",
+    driver: "John Smith",
+    lat: 28.7041,
+    lng: 77.1025,
+    speed: 45,
+    status: "moving",
+    lastUpdate: "2 min ago",
+  },
+  {
+    id: "VH002",
+    name: "Toyota Camry",
+    driver: "Amit Kumar",
+    lat: 28.5355,
+    lng: 77.3910,
+    speed: 0,
+    status: "idle",
+    lastUpdate: "5 min ago",
+  },
+  {
+    id: "VH003",
+    name: "Honda Accord",
+    driver: "Priya Sharma",
+    lat: 28.4595,
+    lng: 77.0266,
+    speed: 22,
+    status: "moving",
+    lastUpdate: "1 min ago",
+  },
+  {
+    id: "VH004",
+    name: "Mahindra XUV700",
+    driver: "Rahul Verma",
+    lat: 28.4089,
+    lng: 77.3178,
+    speed: 0,
+    status: "stopped",
+    lastUpdate: "8 min ago",
+  },
+  {
+    id: "VH005",
+    name: "Hyundai Creta",
+    driver: "Sneha Reddy",
+    lat: 28.6139,
+    lng: 77.2090,
+    speed: 38,
+    status: "moving",
+    lastUpdate: "Just now",
+  },
+];
