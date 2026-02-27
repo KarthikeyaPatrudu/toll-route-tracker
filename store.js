@@ -1,125 +1,197 @@
-/* ========================================
-   LIVE MAP SECTION (ENTERPRISE)
-======================================== */
+i got shared the real time data in json format and told me to stub it in a variable and show it on the map .stub it in variable in the sense we doing it only to check if we can populate the data on the map or not later we will change.
+the data contains timestamp, location like lat,longs, speed and vehicleID.
+   they shared a single vechile data so help me in doing it. 
 
-.map-section {
-  margin-top: 28px;
-  background: white;
-  border-radius: 14px;
-  padding: 22px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-
-/* header */
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
-
-.section-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a202c;
-}
-
-/* legend */
-
-.map-legend {
-  display: flex;
-  gap: 18px;
-  font-size: 13px;
-  color: #64748b;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-/* ========================================
-   MAP CARD
-======================================== */
-
-.map-container {
-  background: #eef2ff;
-  border-radius: 12px;
-  height: 260px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* placeholder center */
-
-.map-placeholder {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.map-icon {
-  position: absolute;
-  left: 50%;
-  top: 42%;
-  transform: translate(-50%, -50%);
-  font-size: 28px;
-  color: #6366f1;
-}
-
-.map-text {
-  position: absolute;
-  left: 50%;
-  top: 55%;
-  transform: translateX(-50%);
-  font-weight: 600;
-  color: #6366f1;
-}
-
-.map-subtext {
-  position: absolute;
-  left: 50%;
-  top: 65%;
-  transform: translateX(-50%);
-  font-size: 13px;
-  color: #94a3b8;
-}
-
-/* ========================================
-   VEHICLE DOTS
-======================================== */
-
-.vehicle-markers {
-  position: absolute;
-  inset: 0;
-}
-
-.vehicle-marker {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
-}
-
-/* states */
-
-.vehicle-marker.moving {
-  background: #48bb78;
-}
-
-.vehicle-marker.stopped {
-  background: #ed8936;
-}
-
-.vehicle-marker.idle {
-  background: #cbd5e0;
-}
+[
+	{
+		"ts" : "2025-07-01T00:00:05.000Z",
+		"location" : "76.66511167 28.86230389",
+		"speed" : 5.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:00:14.000Z",
+		"location" : "76.66460667 28.86265056",
+		"speed" : 13.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:00:15.000Z",
+		"location" : "76.66457389 28.862655",
+		"speed" : 9.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:00:18.000Z",
+		"location" : "76.66450722 28.86269167",
+		"speed" : 9.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:00:19.000Z",
+		"location" : "76.66447833 28.86271333",
+		"speed" : 14.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:00:28.000Z",
+		"location" : "76.66396556 28.86308722",
+		"speed" : 33.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:00:34.000Z",
+		"location" : "76.66348778 28.86342889",
+		"speed" : 38.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:00:38.000Z",
+		"location" : "76.66316056 28.863665",
+		"speed" : 35.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:00:52.000Z",
+		"location" : "76.66263944 28.86399833",
+		"speed" : 8.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:00:54.000Z",
+		"location" : "76.66260667 28.86400167",
+		"speed" : 13.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:01.000Z",
+		"location" : "76.66214333 28.86402444",
+		"speed" : 24.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:02.000Z",
+		"location" : "76.66209111 28.86406556",
+		"speed" : 25.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:04.000Z",
+		"location" : "76.66201389 28.86417278",
+		"speed" : 25.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:05.000Z",
+		"location" : "76.66199111 28.86423611",
+		"speed" : 26.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:09.000Z",
+		"location" : "76.66189611 28.86448056",
+		"speed" : 25.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:10.000Z",
+		"location" : "76.66184444 28.86453",
+		"speed" : 27.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:13.000Z",
+		"location" : "76.66164389 28.86467111",
+		"speed" : 31.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:20.000Z",
+		"location" : "76.66109278 28.86502611",
+		"speed" : 34.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:26.000Z",
+		"location" : "76.66058222 28.86537667",
+		"speed" : 40.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:30.000Z",
+		"location" : "76.66019944 28.86563333",
+		"speed" : 43.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:37.000Z",
+		"location" : "76.65949333 28.8661 ",
+		"speed" : 44.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:40.000Z",
+		"location" : "76.65918611 28.86630889",
+		"speed" : 46.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:47.000Z",
+		"location" : "76.65845444 28.86679778",
+		"speed" : 45.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:50.000Z",
+		"location" : "76.65814167 28.86700667",
+		"speed" : 45.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:01:57.000Z",
+		"location" : "76.657415   28.86748111",
+		"speed" : 45.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:02:00.000Z",
+		"location" : "76.65709333 28.867685",
+		"speed" : 46.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:02:07.000Z",
+		"location" : "76.65631889 28.86816667",
+		"speed" : 48.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:02:10.000Z",
+		"location" : "76.65597889 28.86838333",
+		"speed" : 48.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:02:17.000Z",
+		"location" : "76.65510889 28.86892944",
+		"speed" : 54.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:02:20.000Z",
+		"location" : "76.65470611 28.86916778",
+		"speed" : 58.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:02:26.000Z",
+		"location" : "76.65382111 28.86956667",
+		"speed" : 59.0,
+		"vehicleId" : 1741591.0
+	},
+	{
+		"ts" : "2025-07-01T00:02:30.000Z",
+		"location" : "76.65319722 28.86980667",
+		"speed" : 59.0,
+		"vehicleId" : 1741591.0
+	},
