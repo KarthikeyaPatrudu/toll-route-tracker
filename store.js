@@ -1,29 +1,22 @@
 import { useMemo } from "react";
-import { MapContainer, TileLayer, Polyline, Marker, Popup } from "react-leaflet";
-import L from "leaflet";
+import { MapContainer, TileLayer, Polyline, Marker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-// 👉 IMPORT YOUR STUB
+// 👉 stub data
 import { realtimeVehicleData } from "../mock/realtimeVehicleData";
 
 // ===============================
-// helpers
+// helper — ONLY what we need
 // ===============================
 const parseLocation = (locString) => {
   if (!locString) return null;
   const [lng, lat] = locString.trim().split(" ").map(Number);
-  return [lat, lng]; // leaflet format
-};
-
-const getColorFromSpeed = (speed) => {
-  if (speed === 0) return "#94a3b8"; // idle
-  if (speed < 10) return "#f59e0b"; // slow
-  return "#22c55e"; // moving
+  return [lat, lng];
 };
 
 export default function RealtimeMapTest() {
   // ===============================
-  // normalize stub data
+  // normalize stub data (FAST)
   // ===============================
   const processed = useMemo(() => {
     if (!Array.isArray(realtimeVehicleData)) return [];
@@ -36,7 +29,6 @@ export default function RealtimeMapTest() {
         return {
           lat: coords[0],
           lng: coords[1],
-          speed: Number(p.speed),
           ts: p.ts,
         };
       })
@@ -63,29 +55,11 @@ export default function RealtimeMapTest() {
         />
 
         {/* ROUTE LINE */}
-        <Polyline positions={polylinePositions} color="#2563eb" weight={5} />
+        <Polyline positions={polylinePositions} />
 
-        {/* POINT MARKERS */}
+        {/* SIMPLE MARKERS (FASTEST) */}
         {processed.map((p, idx) => (
-          <Marker
-            key={idx}
-            position={[p.lat, p.lng]}
-            icon={L.divIcon({
-              html: `<div style="
-                background:${getColorFromSpeed(p.speed)};
-                width:14px;
-                height:14px;
-                border-radius:50%;
-                border:2px solid white;
-              "></div>`,
-              className: "",
-            })}
-          >
-            <Popup>
-              <b>Speed:</b> {p.speed} km/h <br />
-              <b>Time:</b> {new Date(p.ts).toLocaleTimeString()}
-            </Popup>
-          </Marker>
+          <Marker key={idx} position={[p.lat, p.lng]} />
         ))}
       </MapContainer>
     </div>
