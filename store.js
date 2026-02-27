@@ -1,3 +1,7 @@
-
-you see the img right when i click on the marker no info shown .
-  in this case just time enough
+{markerPoints.map((p, idx) => (
+  <Marker key={idx} position={[p.lat, p.lng]}>
+    <Popup>
+      {new Date(p.ts).toLocaleString()}
+    </Popup>
+  </Marker>
+))}
