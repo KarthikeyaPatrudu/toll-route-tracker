@@ -1,4 +1,3 @@
-
 import { useMemo } from "react";
 import {
   MapContainer,
@@ -12,7 +11,7 @@ import "leaflet/dist/leaflet.css";
 import { realtimeVehicleData } from "../mock/realtimeVehicleData";
 
 /* =========================================================
-   🔥 FIX: Leaflet default icon issue (Vite / React fix)
+   🔥 FIX: Leaflet default icon issue (Vite fix)
 ========================================================= */
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -26,8 +25,11 @@ L.Icon.Default.mergeOptions({
 });
 
 /* =========================================================
-   🎯 Custom colored icons (stable — do NOT move inside component)
+   🎯 ICONS (OUTSIDE component — IMPORTANT)
 ========================================================= */
+
+const defaultIcon = new L.Icon.Default();
+
 const startIcon = new L.Icon({
   iconUrl:
     "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
@@ -47,7 +49,7 @@ const endIcon = new L.Icon({
 });
 
 /* =========================================================
-   ⏱️ Filter markers every N minutes (PERFORMANCE HERO)
+   ⏱️ Filter markers every N minutes
 ========================================================= */
 function filterMarkersByTime(points, intervalMinutes = 30) {
   if (!points.length) return [];
@@ -146,12 +148,12 @@ export default function RealtimeMapTest() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* ✅ ROUTE ONLY (FAST) */}
+        {/* ✅ ROUTE */}
         <Polyline positions={polylinePositions} weight={5} />
 
-        {/* ✅ TIME-BASED MARKERS (PERFORMANCE SAFE) */}
+        {/* ✅ SAFE MARKERS */}
         {filteredMarkers.map((p, idx) => {
-          let iconToUse;
+          let iconToUse = defaultIcon;
 
           if (idx === 0) iconToUse = startIcon;
           else if (idx === filteredMarkers.length - 1)
@@ -174,74 +176,3 @@ export default function RealtimeMapTest() {
     </div>
   );
 }
-
-agian same error came
-
-chunk-KWUSAO3B.js?v=d12f4965:5081 Uncaught TypeError: Cannot read properties of undefined (reading 'createIcon')
-    at NewClass._initIcon (chunk-KWUSAO3B.js?v=d12f4965:5081:36)
-    at NewClass.onAdd (chunk-KWUSAO3B.js?v=d12f4965:5011:16)
-    at NewClass._layerAdd (chunk-KWUSAO3B.js?v=d12f4965:4454:16)
-    at NewClass.whenReady (chunk-KWUSAO3B.js?v=d12f4965:2981:22)
-    at NewClass.addLayer (chunk-KWUSAO3B.js?v=d12f4965:4475:16)
-    at addLayer (react-leaflet.js?v=d12f4965:237:15)
-    at Object.react_stack_bottom_frame (react-dom_client.js?v=d12f4965:18567:20)
-    at runWithFiberInDEV (react-dom_client.js?v=d12f4965:997:72)
-    at commitHookEffectListMount (react-dom_client.js?v=d12f4965:9411:163)
-    at commitHookPassiveMountEffects (react-dom_client.js?v=d12f4965:9465:60)Understand this error
-react-dom_client.js?v=d12f4965:6966 An error occurred in the <ForwardRef(ContainerComponent)> component.
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
-
-defaultOnUncaughtError @ react-dom_client.js?v=d12f4965:6966Understand this warning
-chunk-KWUSAO3B.js?v=d12f4965:5081 Uncaught TypeError: Cannot read properties of undefined (reading 'createIcon')
-    at NewClass._initIcon (chunk-KWUSAO3B.js?v=d12f4965:5081:36)
-    at NewClass.onAdd (chunk-KWUSAO3B.js?v=d12f4965:5011:16)
-    at NewClass._layerAdd (chunk-KWUSAO3B.js?v=d12f4965:4454:16)
-    at NewClass.whenReady (chunk-KWUSAO3B.js?v=d12f4965:2981:22)
-    at NewClass.addLayer (chunk-KWUSAO3B.js?v=d12f4965:4475:16)
-    at addLayer (react-leaflet.js?v=d12f4965:237:15)
-    at Object.react_stack_bottom_frame (react-dom_client.js?v=d12f4965:18567:20)
-    at runWithFiberInDEV (react-dom_client.js?v=d12f4965:997:72)
-    at commitHookEffectListMount (react-dom_client.js?v=d12f4965:9411:163)
-    at commitHookPassiveMountEffects (react-dom_client.js?v=d12f4965:9465:60)Understand this error
-react-dom_client.js?v=d12f4965:6966 An error occurred in the <ForwardRef(ContainerComponent)> component.
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
-
-defaultOnUncaughtError @ react-dom_client.js?v=d12f4965:6966Understand this warning
-chunk-KWUSAO3B.js?v=d12f4965:5081 Uncaught TypeError: Cannot read properties of undefined (reading 'createIcon')
-    at NewClass._initIcon (chunk-KWUSAO3B.js?v=d12f4965:5081:36)
-    at NewClass.onAdd (chunk-KWUSAO3B.js?v=d12f4965:5011:16)
-    at NewClass._layerAdd (chunk-KWUSAO3B.js?v=d12f4965:4454:16)
-    at NewClass.whenReady (chunk-KWUSAO3B.js?v=d12f4965:2981:22)
-    at NewClass.addLayer (chunk-KWUSAO3B.js?v=d12f4965:4475:16)
-    at addLayer (react-leaflet.js?v=d12f4965:237:15)
-    at Object.react_stack_bottom_frame (react-dom_client.js?v=d12f4965:18567:20)
-    at runWithFiberInDEV (react-dom_client.js?v=d12f4965:997:72)
-    at commitHookEffectListMount (react-dom_client.js?v=d12f4965:9411:163)
-    at commitHookPassiveMountEffects (react-dom_client.js?v=d12f4965:9465:60)Understand this error
-react-dom_client.js?v=d12f4965:6966 An error occurred in the <ForwardRef(ContainerComponent)> component.
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
-
-defaultOnUncaughtError @ react-dom_client.js?v=d12f4965:6966Understand this warning
-chunk-KWUSAO3B.js?v=d12f4965:1762 Uncaught TypeError: Cannot read properties of undefined (reading '_leaflet_events')
-    at removeOne (chunk-KWUSAO3B.js?v=d12f4965:1762:26)
-    at off (chunk-KWUSAO3B.js?v=d12f4965:1708:15)
-    at NewClass._removeIcon (chunk-KWUSAO3B.js?v=d12f4965:5138:13)
-    at NewClass.onRemove (chunk-KWUSAO3B.js?v=d12f4965:5023:16)
-    at NewClass.removeLayer (chunk-KWUSAO3B.js?v=d12f4965:4486:19)
-    at NewClass.removeFrom (chunk-KWUSAO3B.js?v=d12f4965:4418:17)
-    at NewClass.remove (chunk-KWUSAO3B.js?v=d12f4965:4408:23)
-    at NewClass.remove (chunk-KWUSAO3B.js?v=d12f4965:2498:29)
-    at react-leaflet.js?v=d12f4965:559:20
-    at Object.react_stack_bottom_frame (react-dom_client.js?v=d12f4965:18573:13)Understand this error
-react-dom_client.js?v=d12f4965:6966 An error occurred in the <ForwardRef(MapContainerComponent)> component.
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
-
-defaultOnUncaughtError @ react-dom_client.js?v=d12f4965:6966Understand this warning
