@@ -1,9 +1,11 @@
-this is my working realtimetestmap.jsx modify it and give me the full code
 import { useMemo } from "react";
 import { MapContainer, TileLayer, Polyline, Marker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { realtimeVehicleData } from "../mock/realtimeVehicleData";
 
+// =====================================================
+// ✅ TIME FILTER — keeps markers every N minutes
+// =====================================================
 function filterMarkersByTime(points, intervalMinutes = 30) {
   if (!points.length) return [];
 
@@ -21,7 +23,7 @@ function filterMarkersByTime(points, intervalMinutes = 30) {
     }
   }
 
-  // always include last point (important for UX)
+  // always include last point
   const lastPoint = points[points.length - 1];
   if (filtered[filtered.length - 1] !== lastPoint) {
     filtered.push(lastPoint);
@@ -30,29 +32,27 @@ function filterMarkersByTime(points, intervalMinutes = 30) {
   return filtered;
 }
 
-// ===============================
-// helper — ONLY what we need
-// ===============================
+// =====================================================
+// ✅ SAFE LOCATION PARSER
+// =====================================================
 const parseLocation = (locString) => {
   if (!locString) return null;
 
   const parts = locString.trim().split(/\s+/);
-
   if (parts.length !== 2) return null;
 
   const lng = Number(parts[0]);
   const lat = Number(parts[1]);
 
-  //  guard against bad data
   if (isNaN(lat) || isNaN(lng)) return null;
 
-  return [lat, lng]; // ✅ Leaflet format
+  return [lat, lng]; // Leaflet format
 };
 
 export default function RealtimeMapTest() {
-  // ===============================
-  // normalize stub data (FAST)
-  // ===============================
+  // =====================================================
+  // ✅ NORMALIZE DATA (runs once)
+  // =====================================================
   const processed = useMemo(() => {
     if (!Array.isArray(realtimeVehicleData)) return [];
 
@@ -71,12 +71,28 @@ export default function RealtimeMapTest() {
       .sort((a, b) => new Date(a.ts) - new Date(b.ts));
   }, []);
 
-  const polylinePositions = processed.map((p) => [p.lat, p.lng]);
+  // =====================================================
+  // ✅ TIME-BASED MARKERS (EVERY 30 MIN)
+  // =====================================================
+  const markerPoints = useMemo(() => {
+    return filterMarkersByTime(processed, 30);
+  }, [processed]);
+
+  // =====================================================
+  // ✅ POLYLINE
+  // =====================================================
+  const polylinePositions = useMemo(
+    () => processed.map((p) => [p.lat, p.lng]),
+    [processed]
+  );
 
   if (!processed.length) {
     return <div style={{ padding: 40 }}>No realtime data</div>;
   }
 
+  // =====================================================
+  // ✅ RENDER
+  // =====================================================
   return (
     <div style={{ height: "100vh", width: "100%" }}>
       <MapContainer
@@ -89,13 +105,13 @@ export default function RealtimeMapTest() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* ROUTE LINE */}
+        {/* ✅ ROUTE LINE */}
         <Polyline positions={polylinePositions} />
 
-        {/* SIMPLE MARKERS (FASTEST) */}
-        {/* {processed.map((p, idx) => (
+        {/* ✅ TIME-BASED MARKERS (PERFORMANCE SAFE) */}
+        {markerPoints.map((p, idx) => (
           <Marker key={idx} position={[p.lat, p.lng]} />
-        ))} */}
+        ))}
       </MapContainer>
     </div>
   );
