@@ -1,102 +1,125 @@
-import "../../styles/app.css";
+/* ========================================
+   LIVE MAP SECTION (ENTERPRISE)
+======================================== */
 
-export default function DashboardPage() {
-  return (
-    <div>
-      {/* ===== PAGE HEADER ===== */}
-      <h1 className="page-title">Dashboard Overview</h1>
-      <p className="page-subtitle">
-        Real-time vehicle tracking and fleet analytics
-      </p>
+.map-section {
+  margin-top: 28px;
+  background: white;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
 
-      {/* ===== STATS GRID ===== */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-label">Total Vehicles</div>
-          <div className="stat-value">24</div>
-        </div>
+/* header */
 
-        <div className="stat-card">
-          <div className="stat-label">Active Now</div>
-          <div className="stat-value success">18</div>
-        </div>
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
 
-        <div className="stat-card">
-          <div className="stat-label">Stopped</div>
-          <div className="stat-value danger">4</div>
-        </div>
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+}
 
-        <div className="stat-card">
-          <div className="stat-label">Idle</div>
-          <div className="stat-value muted">2</div>
-        </div>
-      </div>
+/* legend */
 
-      {/* ✅ ===== LIVE LOCATION MAP SECTION ===== */}
-      <div className="map-section">
-        <div className="section-header">
-          <h2 className="section-title">Live Location Map</h2>
+.map-legend {
+  display: flex;
+  gap: 18px;
+  font-size: 13px;
+  color: #64748b;
+}
 
-          <div className="map-legend">
-            <span className="legend-item">
-              <span
-                className="legend-dot"
-                style={{ background: "#48bb78" }}
-              ></span>
-              Moving
-            </span>
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-            <span className="legend-item">
-              <span
-                className="legend-dot"
-                style={{ background: "#ed8936" }}
-              ></span>
-              Stopped
-            </span>
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
 
-            <span className="legend-item">
-              <span
-                className="legend-dot"
-                style={{ background: "#cbd5e0" }}
-              ></span>
-              Idle
-            </span>
-          </div>
-        </div>
+/* ========================================
+   MAP CARD
+======================================== */
 
-        {/* MAP CARD */}
-        <div className="map-container">
-          <div className="map-placeholder">
-            <div className="map-icon">📍</div>
-            <p className="map-text">Interactive Map View</p>
-            <p className="map-subtext">Showing 5 vehicle locations</p>
+.map-container {
+  background: #eef2ff;
+  border-radius: 12px;
+  height: 260px;
+  position: relative;
+  overflow: hidden;
+}
 
-            {/* Fake vehicle dots */}
-            <div className="vehicle-markers">
-              <div
-                className="vehicle-marker moving"
-                style={{ left: "20%", top: "30%" }}
-              />
-              <div
-                className="vehicle-marker stopped"
-                style={{ left: "35%", top: "50%" }}
-              />
-              <div
-                className="vehicle-marker moving"
-                style={{ left: "50%", top: "70%" }}
-              />
-              <div
-                className="vehicle-marker moving"
-                style={{ left: "65%", top: "30%" }}
-              />
-              <div
-                className="vehicle-marker idle"
-                style={{ left: "80%", top: "50%" }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+/* placeholder center */
+
+.map-placeholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.map-icon {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  color: #6366f1;
+}
+
+.map-text {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  transform: translateX(-50%);
+  font-weight: 600;
+  color: #6366f1;
+}
+
+.map-subtext {
+  position: absolute;
+  left: 50%;
+  top: 65%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* ========================================
+   VEHICLE DOTS
+======================================== */
+
+.vehicle-markers {
+  position: absolute;
+  inset: 0;
+}
+
+.vehicle-marker {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+}
+
+/* states */
+
+.vehicle-marker.moving {
+  background: #48bb78;
+}
+
+.vehicle-marker.stopped {
+  background: #ed8936;
+}
+
+.vehicle-marker.idle {
+  background: #cbd5e0;
 }
