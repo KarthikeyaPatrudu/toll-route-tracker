@@ -1,3 +1,4 @@
-i want to add markers but if we add markers for every request rendering problem occurs .
-  suggest me a method by which we can add marker.
-  but i dont want markers for evry request , i only wnat those many where the brower can render peacfully
+so as we know the json data i have contains time also along with lat,logs.
+if its possible can we add markers for every 30mins which means two markers for 1hr.
+markers will be added time based. 
+  if possible help me in going it.
