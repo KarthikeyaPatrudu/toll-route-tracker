@@ -1,60 +1,72 @@
-{/* Vehicles Table */}
-<div className="vehicles-section">
-  <div className="section-header">
-    <h2 className="section-title">Vehicle Fleet</h2>
-    <button className="refresh-btn">
-      <Activity size={16} />
-      Refresh
-    </button>
-  </div>
+/* ===== Vehicles Section ===== */
+.vehicles-section {
+  margin-top: 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
 
-  <div className="table-container">
-    <table className="vehicles-table">
-      <thead>
-        <tr>
-          <th>Vehicle ID</th>
-          <th>Name</th>
-          <th>Driver</th>
-          <th>Location</th>
-          <th>Speed</th>
-          <th>Status</th>
-          <th>Last Update</th>
-        </tr>
-      </thead>
-      <tbody>
-        {vehiclesData.map((vehicle) => (
-          <tr key={vehicle.id}>
-            <td className="vehicle-id">{vehicle.id}</td>
+.table-container {
+  overflow-x: auto;
+}
 
-            <td className="vehicle-name">
-              <Car size={16} className="table-icon" />
-              {vehicle.name}
-            </td>
+.vehicles-table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-            <td>{vehicle.driver}</td>
+.vehicles-table th {
+  text-align: left;
+  padding: 12px;
+  font-size: 13px;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
 
-            <td className="location-cell">
-              <Navigation size={14} className="table-icon" />
-              {vehicle.lat.toFixed(4)}, {vehicle.lng.toFixed(4)}
-            </td>
+.vehicles-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+}
 
-            <td>{vehicle.speed} km/h</td>
+.vehicle-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-            <td>
-              <span
-                className={`status-badge status-${vehicle.status}`}
-              >
-                {vehicle.status}
-              </span>
-            </td>
+.location-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-            <td className="last-update">
-              <Clock size={14} className="table-icon" />
-              {vehicle.lastUpdate}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
+.last-update {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ===== Status badges ===== */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-moving {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-idle {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-stopped {
+  background: #fee2e2;
+  color: #dc2626;
+}
