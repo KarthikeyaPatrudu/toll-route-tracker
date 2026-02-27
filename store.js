@@ -1,19 +1,18 @@
-wait i will share my working mapView.jsx modifiy in that code
-
-
 import { useEffect, useRef, useMemo } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import { realtimeVehicleData } from "../../mock/realtimeVehicleData";
-import { useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Polyline, Popup } from "react-leaflet";
 
+// ===============================
+// HELPERS
+// ===============================
 
 const parseLocation = (locString) => {
+  if (!locString) return [0, 0];
   const [lng, lat] = locString.trim().split(" ").map(Number);
-  return [lat, lng]; // Leaflet format
+  return [lat, lng]; // Leaflet expects [lat, lng]
 };
 
 const getStatusFromSpeed = (speed) => {
@@ -22,14 +21,41 @@ const getStatusFromSpeed = (speed) => {
   return "moving";
 };
 
-export default function MapView({ points, onRouteCalculated }) {
+// ===============================
+// REALTIME → MAP POINTS ADAPTER
+// ===============================
+
+const realtimeToPoints = (data) => {
+  if (!Array.isArray(data)) return [];
+
+  return data.map((item) => {
+    const [lat, lng] = parseLocation(item.location);
+
+    return {
+      lat,
+      lng,
+      timestamp: item.ts,
+      speed: item.speed,
+      vehicleId: item.vehicleId,
+      tollPlazaName: `Vehicle ${item.vehicleId}`
+    };
+  });
+};
+
+// ===============================
+// COMPONENT
+// ===============================
+
+export default function MapView({ points: externalPoints, onRouteCalculated }) {
   const mapRef = useRef(null);
   const routingRef = useRef(null);
   const markersRef = useRef([]);
   const routeLayersRef = useRef([]);
-  const lastRouteKeyRef = useRef(""); 
+  const lastRouteKeyRef = useRef("");
 
-    //  INIT MAP ONLY ONCE
+  // ===============================
+  // INIT MAP (ONLY ONCE)
+  // ===============================
 
   useEffect(() => {
     if (!mapRef.current) {
@@ -42,47 +68,69 @@ export default function MapView({ points, onRouteCalculated }) {
     }
   }, []);
 
-    //  NORMALIZE + SORT 
+  // ===============================
+  // SOURCE SELECT (props vs stub)
+  // ===============================
+
+  const sourcePoints = useMemo(() => {
+    if (Array.isArray(externalPoints) && externalPoints.length > 0) {
+      return externalPoints;
+    }
+
+    // fallback to realtime stub
+    return realtimeToPoints(realtimeVehicleData);
+  }, [externalPoints]);
+
+  // ===============================
+  // NORMALIZE + SORT
+  // ===============================
 
   const sorted = useMemo(() => {
-    if (!Array.isArray(points)) return [];
+    if (!Array.isArray(sourcePoints)) return [];
 
-    return points
-      .filter(p => p?.lat !== undefined && p?.lng !== undefined && p?.timestamp)
-      .map(p => ({
+    return sourcePoints
+      .filter(
+        (p) => p?.lat !== undefined && p?.lng !== undefined && p?.timestamp
+      )
+      .map((p) => ({
         ...p,
         lat: Number(p.lat),
         lng: Number(p.lng)
       }))
       .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-  }, [points]);
+  }, [sourcePoints]);
 
-    //  ROUTE DRAWING
+  // ===============================
+  // ROUTE DRAWING
+  // ===============================
 
   useEffect(() => {
     if (!mapRef.current || sorted.length === 0) return;
 
     const map = mapRef.current;
-    const latlngs = sorted.map(p => [p.lat, p.lng]);
+    const latlngs = sorted.map((p) => [p.lat, p.lng]);
 
-    // ROUTE CACHE KEY 
-    const routeKey = latlngs.map(p => p.join(",")).join("|");
+    // ROUTE CACHE KEY
+    const routeKey = latlngs.map((p) => p.join(",")).join("|");
     if (routeKey === lastRouteKeyRef.current) return;
     lastRouteKeyRef.current = routeKey;
 
-    // CLEAR OLD 
+    // CLEAR OLD ROUTING
     if (routingRef.current) {
       map.removeControl(routingRef.current);
       routingRef.current = null;
     }
 
-    markersRef.current.forEach(m => map.removeLayer(m));
+    markersRef.current.forEach((m) => map.removeLayer(m));
     markersRef.current = [];
 
-    routeLayersRef.current.forEach(l => map.removeLayer(l));
+    routeLayersRef.current.forEach((l) => map.removeLayer(l));
     routeLayersRef.current = [];
 
-    // SINGLE POINT 
+    // ===============================
+    // SINGLE POINT CASE
+    // ===============================
+
     if (latlngs.length === 1) {
       const marker = L.marker(latlngs[0])
         .addTo(map)
@@ -94,7 +142,10 @@ export default function MapView({ points, onRouteCalculated }) {
       return;
     }
 
-    // GROUP SAME LOCATION 
+    // ===============================
+    // GROUP SAME LOCATION
+    // ===============================
+
     const grouped = {};
 
     sorted.forEach((p, i) => {
@@ -109,7 +160,7 @@ export default function MapView({ points, onRouteCalculated }) {
           <b>${group[0].tollPlazaName}</b><br/><br/>
           ${group
             .map(
-              g => `
+              (g) => `
               <b>Stop:</b> ${g.stop}<br/>
               <b>Time:</b> ${new Date(g.timestamp).toLocaleTimeString()}<br/>
               <b>Date:</b> ${new Date(g.timestamp).toLocaleDateString()}
@@ -137,16 +188,19 @@ export default function MapView({ points, onRouteCalculated }) {
       markersRef.current.push(marker);
     });
 
-    // ROUTING 
+    // ===============================
+    // ROUTING ENGINE
+    // ===============================
+
     routingRef.current = L.Routing.control({
-      waypoints: latlngs.map(p => L.latLng(p[0], p[1])),
+      waypoints: latlngs.map((p) => L.latLng(p[0], p[1])),
       addWaypoints: false,
       draggableWaypoints: false,
       show: false,
       createMarker: () => null,
-      lineOptions: { styles: [{ opacity: 0}] }
+      lineOptions: { styles: [{ opacity: 0 }] }
     })
-      .on("routesfound", e => {
+      .on("routesfound", (e) => {
         const route = e.routes[0];
         const coords = route.coordinates;
 
@@ -157,8 +211,7 @@ export default function MapView({ points, onRouteCalculated }) {
             new Date(sorted[0].timestamp)) /
           (1000 * 60 * 60);
 
-        const totalAvg =
-          totalHours > 0 ? totalKm / totalHours : 0;
+        const totalAvg = totalHours > 0 ? totalKm / totalHours : 0;
 
         function nearestIndex(coords, lat, lng) {
           let min = Infinity;
@@ -175,14 +228,21 @@ export default function MapView({ points, onRouteCalculated }) {
           return idx;
         }
 
-        // SEGMENT COLORING 
+        // ===============================
+        // SEGMENT COLORING (PRO)
+        // ===============================
+
         for (let i = 0; i < sorted.length - 1; i++) {
           const s = nearestIndex(coords, sorted[i].lat, sorted[i].lng);
-          const eIdx = nearestIndex(coords, sorted[i + 1].lat, sorted[i + 1].lng);
+          const eIdx = nearestIndex(
+            coords,
+            sorted[i + 1].lat,
+            sorted[i + 1].lng
+          );
 
           const segment = coords
             .slice(Math.min(s, eIdx), Math.max(s, eIdx))
-            .map(c => [c.lat, c.lng]);
+            .map((c) => [c.lat, c.lng]);
 
           if (segment.length < 2) continue;
 
@@ -200,7 +260,11 @@ export default function MapView({ points, onRouteCalculated }) {
 
           const segmentAvgSpeed = hours > 0 ? km / hours : 0;
 
-          const color = segmentAvgSpeed > 40 ? "orange" : "#2563eb";
+          // 🔥 professional color logic
+          let color = "#2563eb"; // default blue
+          if (segmentAvgSpeed === 0) color = "#94a3b8"; // idle
+          else if (segmentAvgSpeed < 10) color = "#ed8936"; // slow
+          else if (segmentAvgSpeed > 40) color = "#22c55e"; // fast
 
           const poly = L.polyline(segment, {
             color,
