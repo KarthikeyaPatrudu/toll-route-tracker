@@ -1,14 +1,25 @@
-{markerPoints.map((p, idx) => {
-  const isStart = idx === 0;
-  const isEnd = idx === markerPoints.length - 1;
+// ===============================
+// custom marker icons
+// ===============================
 
-  return (
-    <Marker
-      key={idx}
-      position={[p.lat, p.lng]}
-      icon={isStart ? startIcon : isEnd ? endIcon : undefined}
-    >
-      <Popup>{new Date(p.ts).toLocaleTimeString()}</Popup>
-    </Marker>
-  );
-})}
+const startIcon = new L.Icon({
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+const endIcon = new L.Icon({
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
