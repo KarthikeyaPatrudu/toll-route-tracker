@@ -1,7 +1,14 @@
-{markerPoints.map((p, idx) => (
-  <Marker key={idx} position={[p.lat, p.lng]}>
-    <Popup>
-      {new Date(p.ts).toLocaleString()}
-    </Popup>
-  </Marker>
-))}
+{markerPoints.map((p, idx) => {
+  const isStart = idx === 0;
+  const isEnd = idx === markerPoints.length - 1;
+
+  return (
+    <Marker
+      key={idx}
+      position={[p.lat, p.lng]}
+      icon={isStart ? startIcon : isEnd ? endIcon : undefined}
+    >
+      <Popup>{new Date(p.ts).toLocaleTimeString()}</Popup>
+    </Marker>
+  );
+})}
